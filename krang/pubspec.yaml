@@ -1,13 +1,17 @@
 name: krang
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 version: 1.0.0+1
+
 environment:
   sdk: ^3.9.2
+
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  http: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -16,5 +20,3 @@ dev_dependencies:
 flutter:
   assets:
     - assets/logo.png
-
-

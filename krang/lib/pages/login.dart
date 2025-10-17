@@ -1,7 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _errorMessage = 'Please fill in all fields');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final url = Uri.parse('http://localhost:8000/api/auth/login');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Login success: $data');
+
+        // переход, например, на главную
+        // Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        print('Error: ${response.body}');
+        setState(() => _errorMessage = 'Invalid email or password');
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Connection error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,29 +77,31 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 50),
               TextField(
+                controller: _emailController,
                 style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'email',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: const UnderlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigo),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
                   ),
                 ),
               ),
               const SizedBox(height: 25),
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'password',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: const UnderlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigo),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
                   ),
                 ),
@@ -56,7 +110,7 @@ class LoginPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -64,8 +118,10 @@ class LoginPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'register',
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.indigo)
+                      : const Text(
+                    'Log in',
                     style: TextStyle(
                       color: Colors.indigo,
                       fontSize: 16,
@@ -74,6 +130,12 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
