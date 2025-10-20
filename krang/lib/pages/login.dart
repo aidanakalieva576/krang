@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  // 🔹 ЛОГИН с проверкой роли
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -31,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final url = Uri.parse('http://localhost:8000/api/auth/login');
+      final url = Uri.parse('http://localhost:8080/api/auth/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -42,8 +43,20 @@ class _LoginPageState extends State<LoginPage> {
         final data = jsonDecode(response.body);
         print('Login success: $data');
 
-        // переход, например, на главную
-        // Navigator.pushReplacementNamed(context, '/home');
+        final role = data['role'];
+        final token = data['token'];
+
+        // 🔹 Можно сохранить токен (например, через SharedPreferences)
+        // но пока просто напечатаем
+        print('Token: $token');
+        print('Role: $role');
+
+        // 🔹 Переход в зависимости от роли
+        if (role == 'ADMIN') {
+          Navigator.pushReplacementNamed(context, '/admin_home');
+        } else {
+          Navigator.pushReplacementNamed(context, '/onboard1');
+        }
       } else {
         print('Error: ${response.body}');
         setState(() => _errorMessage = 'Invalid email or password');
@@ -121,13 +134,13 @@ class _LoginPageState extends State<LoginPage> {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.indigo)
                       : const Text(
-                    'Log in',
-                    style: TextStyle(
-                      color: Colors.indigo,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                          'Log in',
+                          style: TextStyle(
+                            color: Colors.indigo,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
