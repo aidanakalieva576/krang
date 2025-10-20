@@ -20,3 +20,5 @@ dev_dependencies:
 flutter:
   assets:
     - assets/logo.png
+    - assets/Arrow.png
+    - assets/Search.png

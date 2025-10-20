@@ -1,0 +1,20 @@
+# --- Игнорировать всё ---
+*
+
+# --- Разрешить только папку krang ---
+!krang/
+!krang/**
+
+# --- Разрешить сам .gitignore ---
+!.gitignore
+
+# --- Общие правила для IDE и Flutter ---
+.idea/
+.vscode/
+build/
+.DS_Store
+
+# --- Из старого backend (если пригодится) ---
+*.iml
+*.ipr
+*.iws
