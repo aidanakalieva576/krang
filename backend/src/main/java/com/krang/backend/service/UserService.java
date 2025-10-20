@@ -30,7 +30,11 @@ public class UserService {
         }
 
         String hashed = passwordEncoder.encode(req.getPassword());
+
         User user = new User(req.getUsername(), req.getEmail(), hashed);
+        user.setRole("USER"); 
+        user.setActive(true);  
+
         return userRepository.save(user);
     }
 }

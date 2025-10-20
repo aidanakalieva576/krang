@@ -1,18 +1,22 @@
 package com.krang.backend.security;
 
-import com.krang.backend.repository.UserRepository;
+import java.io.IOException;
+import java.util.List;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.krang.backend.repository.UserRepository;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -44,11 +48,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var user = userRepository.findByUsername(username).orElse(null);
 
             if (user != null && jwtUtil.validateToken(token)) {
+                // 👇 теперь добавляем роль пользователя
+                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase()));
+
                 var authToken = new UsernamePasswordAuthenticationToken(
-                        new User(user.getUsername(), user.getPasswordHash(), java.util.Collections.emptyList()),
+                        new User(user.getUsername(), user.getPasswordHash(), authorities),
                         null,
-                        java.util.Collections.emptyList()
+                        authorities
                 );
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
