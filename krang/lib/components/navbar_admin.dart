@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:krang/pages/admin/home_page_admin.dart';
+import 'package:krang/pages/admin/users_page_admin.dart';
+import 'package:krang/pages/admin/stats_page_admin.dart';
+import 'package:krang/pages/admin/support_page_admin.dart';
 
 class NavbarAdmin extends StatefulWidget {
   final int selectedIndex;
-  final Function(int) onItemTapped;
+  final Function(int)? onItemTapped;
 
-  const NavbarAdmin({
-    Key? key,
-    required this.selectedIndex,
-    required this.onItemTapped,
-  }) : super(key: key);
+  const NavbarAdmin({Key? key, required this.selectedIndex, this.onItemTapped})
+    : super(key: key);
 
   @override
   State<NavbarAdmin> createState() => _NavbarAdminState();
@@ -22,14 +23,49 @@ class _NavbarAdminState extends State<NavbarAdmin> {
     'assets/icons_admin/icon_support.png',
   ];
 
+  void _handleNavigation(BuildContext context, int index) {
+    // Вызываем колбэк (если нужно обновить selectedIndex снаружи)
+    if (widget.onItemTapped != null) widget.onItemTapped!(index);
+
+    // Локальная навигация
+    Widget? targetPage;
+
+    switch (index) {
+      case 0:
+        targetPage = HomePageAdmin();
+        break;
+      case 1:
+        targetPage = UsersPageAdmin();
+        break;
+      case 2:
+        targetPage = StatsPageAdmin();
+        break;
+      case 3:
+        targetPage = SupportPageAdmin();
+        break;
+    }
+
+    if (targetPage != null) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => targetPage!,
+          transitionDuration: const Duration(milliseconds: 250),
+          transitionsBuilder: (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0x80414553), // фон, как на макете
-        borderRadius: BorderRadius.circular(40), // скругление как на Figma
+        color: const Color(0x80414553),
+        borderRadius: BorderRadius.circular(40),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -42,17 +78,17 @@ class _NavbarAdminState extends State<NavbarAdmin> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(
           icons.length,
-          (index) => _buildNavItem(icons[index], index),
+          (index) => _buildNavItem(context, icons[index], index),
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(String assetPath, int index) {
+  Widget _buildNavItem(BuildContext context, String assetPath, int index) {
     final bool isSelected = widget.selectedIndex == index;
 
     return GestureDetector(
-      onTap: () => widget.onItemTapped(index),
+      onTap: () => _handleNavigation(context, index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: 32,
