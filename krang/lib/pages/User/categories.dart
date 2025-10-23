@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../components/navbar.dart';
-import '../components/movies.dart';
-import '../components/categoriesSpecial.dart';
-import '../components/search.dart';
+import '../../components/navbar.dart';
+import '../../components/movies.dart';
+import '../../components/categoriesSpecial.dart';
+import '../../components/search.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});

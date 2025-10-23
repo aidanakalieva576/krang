@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   http: ^1.2.0
+  video_player: ^2.9.1
 
 dev_dependencies:
   flutter_test:
@@ -19,7 +20,17 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/logo.png
-    - assets/Arrow.png
-    - assets/Search.png
+    - assets/icons_user/logo.png
+    - assets/icons_user/Arrow.png
+    - assets/icons_user/Search.png
+    - assets/icons_user/ITonya.png
+    - assets/icons_user/star.png
+    - assets/icons_user/favourite.png
+    - assets/icons_user/avatar.png
+    - assets/icons_user/brooklyn_movie.png
+    - assets/icons_user/desperate_housewives.png
+    - assets/icons_user/arcane.png
+    - assets/icons_user/kpop_demon_hunters.png
+    - assets/icons_user/oitnb.png
+    - assets/icons_user/the_lovely_bones.png
     - assets/icons_admin/

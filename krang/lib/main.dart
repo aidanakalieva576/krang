@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 // импорт всех нужных страниц
-import 'pages/registration.dart';
-import 'pages/login.dart';
-import 'pages/onboarding.dart';
-import 'pages/onboarding2.dart';
-import 'pages/home.dart';              // ✅ добавь, если есть HomePage
+import 'pages/User/registration.dart';
+import 'pages/User/login.dart';
+import 'pages/User/onboarding.dart';
+import 'pages/User/onboarding2.dart';
+import 'pages/User/home.dart';              // ✅ добавь, если есть HomePage
 import 'pages/admin/home_page_admin.dart'; // ✅ путь к HomePageAdmin
 
 void main() {
