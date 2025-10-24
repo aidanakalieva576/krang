@@ -33,23 +33,13 @@ class MovieInfo extends StatelessWidget {
         ),
 
         const SizedBox(height: 8),
-        Text(
-          subtitle,
-          style: const TextStyle(color: Colors.white70),
-        ),
+        Text(subtitle, style: const TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
 
         // Время и возраст
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-<<<<<<< HEAD
-            Image.asset(
-              'assets/icons/time.png',
-              width: 16,
-              height: 16,
-              color: Colors.white70,
-=======
             Text(
               duration, // например "2h"
               style: const TextStyle(
@@ -57,15 +47,11 @@ class MovieInfo extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
->>>>>>> d7edde5cc50e90f2fe95a2513c9fecbbaa1d363f
             ),
             const SizedBox(width: 16),
             Text(
               age,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
           ],
         ),
@@ -81,13 +67,8 @@ class MovieInfo extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Image.asset(
                 index < rating
-<<<<<<< HEAD
-                    ? 'assets/icons_admin/full_star.png'
-                    : 'assets/icons_admin/star.png',
-=======
                     ? 'assets/icons_user/star.png'
                     : 'assets/icons_user/empty_star.png',
->>>>>>> d7edde5cc50e90f2fe95a2513c9fecbbaa1d363f
                 width: 20,
                 height: 20,
               ),
