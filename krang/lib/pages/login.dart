@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // 🔹 ЛОГИН с проверкой роли
+  // 🔹 ЛОГИН с сохранением token/role в SharedPreferences
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -32,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      // если тестируешь на Android-эмуляторе — используй 10.0.2.2 вместо localhost
       final url = Uri.parse('http://localhost:8080/api/auth/login');
       final response = await http.post(
         url,
@@ -41,31 +43,49 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Login success: $data');
+        debugPrint('Login success: $data');
 
-        final role = data['role'];
-        final token = data['token'];
+        final role = data['role'] as String?;
+        final token = data['token'] as String?;
 
-        // 🔹 Можно сохранить токен (например, через SharedPreferences)
-        // но пока просто напечатаем
-        print('Token: $token');
-        print('Role: $role');
+        // Сохраняем токен/роль/почту в SharedPreferences (если есть)
+        final prefs = await SharedPreferences.getInstance();
+        if (token != null) await prefs.setString('jwt_token', token);
+        if (role != null) await prefs.setString('role', role);
+        await prefs.setString('user_email', email);
 
-        // 🔹 Переход в зависимости от роли
+        debugPrint('Token saved in SharedPreferences');
+
+        // Навигация в зависимости от роли
         if (role == 'ADMIN') {
+          if (!mounted) return;
           Navigator.pushReplacementNamed(context, '/admin_home');
         } else {
-          Navigator.pushReplacementNamed(context, '/onboard1');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/home');
         }
       } else {
-        print('Error: ${response.body}');
-        setState(() => _errorMessage = 'Invalid email or password');
+        debugPrint('Error: ${response.body}');
+        String message = 'Invalid email or password';
+        try {
+          final body = jsonDecode(response.body);
+          if (body is Map && body['error'] != null)
+            message = body['error'].toString();
+        } catch (_) {}
+        setState(() => _errorMessage = message);
       }
     } catch (e) {
       setState(() => _errorMessage = 'Connection error: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override

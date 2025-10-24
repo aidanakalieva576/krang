@@ -64,7 +64,7 @@ class _NavbarAdminState extends State<NavbarAdmin> {
       margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0x80414553),
+        color: const Color.fromARGB(255, 65, 69, 83),
         borderRadius: BorderRadius.circular(40),
         boxShadow: [
           BoxShadow(

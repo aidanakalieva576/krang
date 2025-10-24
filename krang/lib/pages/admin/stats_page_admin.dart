@@ -1,7 +1,6 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:krang/components/navbar_admin.dart'; // <- твой готовый navbar
+import 'package:krang/components/navbar_admin.dart';
 
 class StatsPageAdmin extends StatelessWidget {
   const StatsPageAdmin({super.key});
@@ -9,205 +8,198 @@ class StatsPageAdmin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const bgColor = Color(0xFF121212);
-    const pillSelected = Color(0xFF8B8CA0); // светлый для выбранной вкладки
+    const pillSelected = Color(0xFF8B8CA0);
     const pillUnselected = Color(0xFF2E2E31);
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Контент — скролл
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 18,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Заголовок (уменьшил)
-                    const Text(
-                      'Reports & Analytics',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black45,
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Reports & Analytics',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
+                  ),
+                  const SizedBox(height: 14),
 
-                    // Пилы: Today / Week / Month / Year (горизонт. скролл)
-                    SingleChildScrollView(
+                  // ⏱️ Пилы
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _TimePill(
+                          label: 'Today',
+                          selected: true,
+                          colorSelected: pillSelected,
+                          colorUnselected: pillUnselected,
+                        ),
+                        const SizedBox(width: 10),
+                        _TimePill(
+                          label: 'Week',
+                          selected: false,
+                          colorSelected: pillSelected,
+                          colorUnselected: pillUnselected,
+                        ),
+                        const SizedBox(width: 10),
+                        _TimePill(
+                          label: 'Month',
+                          selected: false,
+                          colorSelected: pillSelected,
+                          colorUnselected: pillUnselected,
+                        ),
+                        const SizedBox(width: 10),
+                        _TimePill(
+                          label: 'Year',
+                          selected: false,
+                          colorSelected: pillSelected,
+                          colorUnselected: pillUnselected,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 🎬 Top watched movies
+                  const Text(
+                    'Top Watched Movies',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    height: 120,
+                    child: ListView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _TimePill(
-                            label: 'Today',
-                            selected: true,
-                            colorSelected: pillSelected,
-                            colorUnselected: pillUnselected,
-                          ),
-                          const SizedBox(width: 10),
-                          _TimePill(
-                            label: 'Week',
-                            selected: false,
-                            colorSelected: pillSelected,
-                            colorUnselected: pillUnselected,
-                          ),
-                          const SizedBox(width: 10),
-                          _TimePill(
-                            label: 'Month',
-                            selected: false,
-                            colorSelected: pillSelected,
-                            colorUnselected: pillUnselected,
-                          ),
-                          const SizedBox(width: 10),
-                          _TimePill(
-                            label: 'Year',
-                            selected: false,
-                            colorSelected: pillSelected,
-                            colorUnselected: pillUnselected,
-                          ),
-                        ],
-                      ),
+                      children: const [
+                        SizedBox(width: 2),
+                        _MovieCard(
+                          image: 'assets/icons_admin/the_last_of_us.png',
+                          title: 'The Last of Us',
+                        ),
+                        SizedBox(width: 12),
+                        _MovieCard(
+                          image: 'assets/icons_admin/conjuring.png',
+                          title: 'The Conjuring: Last Rites',
+                        ),
+                        SizedBox(width: 12),
+                        _MovieCard(
+                          image: 'assets/icons_admin/haikyuu.png',
+                          title: 'Haikyuu!',
+                        ),
+                        SizedBox(width: 10),
+                      ],
                     ),
+                  ),
 
-                    const SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
-                    // Top Watched Movies (уменьшил заголовок)
-                    const Text(
-                      'Top Watched Movies',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  // 📈 Viewing time
+                  const Text(
+                    'Viewing time',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 10),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 200,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1A1A),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: CustomPaint(
+                      painter: _LineChartPainter(),
+                      child: Container(),
+                    ),
+                  ),
 
-                    // Ряд карточек с постерами
-                    SizedBox(
-                      height: 120, // уменьшил высоту контейнера
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          const SizedBox(width: 2),
-                          _MovieCard(
-                            image: 'assets/icons_admin/the_last_of_us.png',
-                            title: 'The Last of Us',
+                  const SizedBox(height: 20),
+
+                  // 🌀 Top Genres
+                  const Text(
+                    'Top Genres',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 220,
+                          height: 220,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(140),
                           ),
-                          const SizedBox(width: 12),
-                          _MovieCard(
-                            image: 'assets/icons_admin/conjuring.png',
-                            title: 'The Conjuring: Last Rites',
+                          child: CustomPaint(
+                            painter: _PieChartPainter(),
+                            child: Container(),
                           ),
-                          const SizedBox(width: 12),
-                          _MovieCard(
-                            image: 'assets/icons_admin/haikyuu.png',
-                            title: 'Haikyuu!',
+                        ),
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              _GenreColumn(name: 'Drama', percent: '37%'),
+                              _GenreColumn(name: 'Romance', percent: '26%'),
+                              _GenreColumn(name: 'Horror', percent: '18%'),
+                              _GenreColumn(name: 'Fantasy', percent: '19%'),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-
-                    const SizedBox(height: 18),
-
-                    // Viewing time
-                    const Text(
-                      'Viewing time',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      height: 200,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1A1A1A),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: CustomPaint(
-                        painter: _LineChartPainter(),
-                        child: Container(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Top Genres
-                    const Text(
-                      'Top Genres',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 220,
-                            height: 220,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1A1A1A),
-                              borderRadius: BorderRadius.circular(140),
-                            ),
-                            child: CustomPaint(
-                              painter: _PieChartPainter(),
-                              child: Container(),
-                            ),
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const [
-                                _GenreColumn(name: 'Drama', percent: '37%'),
-                                _GenreColumn(name: 'Romance', percent: '26%'),
-                                _GenreColumn(name: 'Horror', percent: '18%'),
-                                _GenreColumn(name: 'Fantasy', percent: '19%'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 80), // место под navbar
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 100), // запас под navbar
+                ],
               ),
             ),
+          ),
 
-            // Навигация внизу — используем твой готовый компонент navbar
-            const NavbarAdmin(selectedIndex: 2),
-          ],
-        ),
+          // 🧭 Навбар поверх контента (через Stack)
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: NavbarAdmin(selectedIndex: 2),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Pill кнопка (уменьшил ширину/высоту текста)
 class _TimePill extends StatelessWidget {
   final String label;
   final bool selected;
@@ -223,7 +215,6 @@ class _TimePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // чуть уже
       width: 76,
       height: 34,
       alignment: Alignment.center,
@@ -243,7 +234,6 @@ class _TimePill extends StatelessWidget {
   }
 }
 
-/// Карточка фильма с постером и подписью (Важные правки здесь)
 class _MovieCard extends StatelessWidget {
   final String image;
   final String title;
@@ -251,11 +241,9 @@ class _MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // уменьшил картинку и высоту, чтобы не было overflow
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // контейнер с картинкой
         Container(
           width: 96,
           height: 96,
@@ -287,7 +275,6 @@ class _MovieCard extends StatelessWidget {
   }
 }
 
-/// Подписанная колонка жанра (уменьшил шрифты)
 class _GenreColumn extends StatelessWidget {
   final String name;
   final String percent;
@@ -317,22 +304,16 @@ class _LineChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final bg = Paint()..color = Colors.transparent;
     canvas.drawRect(Offset.zero & size, bg);
-
     final axisPaint = Paint()
       ..color = Colors.white24
       ..strokeWidth = 2;
 
-    // Насколько смещаем весь график влево
-    const graphShift = 13.0; // 👈 регулируй значение (-8, -12 и т.д.)
-
-    // ось Y слева
+    const graphShift = 13.0;
     canvas.drawLine(
       Offset(20 + graphShift, 8),
       Offset(20 + graphShift, size.height - 28),
       axisPaint,
     );
-
-    // ось X внизу
     canvas.drawLine(
       Offset(20 + graphShift, size.height - 28),
       Offset(size.width - 12 + graphShift, size.height - 28),
@@ -347,12 +328,10 @@ class _LineChartPainter extends CustomPainter {
     final plotWidth = size.width - left - 24;
     final dxStep = plotWidth / (values.length - 1);
 
-    // пунктирная линия уровня 37
     final double lineY = top + (1 - (37 / maxVal)) * (bottom - top);
     final dashPaint = Paint()
       ..color = Colors.white24
       ..strokeWidth = 1.2;
-
     const dashWidth = 6.0;
     const dashSpace = 6.0;
     double startX = left;
@@ -365,7 +344,6 @@ class _LineChartPainter extends CustomPainter {
       startX += dashWidth + dashSpace;
     }
 
-    // линия графика
     final linePaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 2.2
@@ -383,7 +361,6 @@ class _LineChartPainter extends CustomPainter {
     }
     canvas.drawPath(path, linePaint);
 
-    // точки графика
     final dotPaint = Paint()..color = Colors.white;
     for (int i = 0; i < values.length; i++) {
       final x = left + dxStep * i;
@@ -392,7 +369,6 @@ class _LineChartPainter extends CustomPainter {
       canvas.drawCircle(Offset(x, y), 2.0, Paint()..color = Colors.black87);
     }
 
-    // риски по оси X
     final tickPaint = Paint()..color = Colors.white24;
     final ticks = 8;
     final tickStep = plotWidth / (ticks - 1);
@@ -401,7 +377,6 @@ class _LineChartPainter extends CustomPainter {
       canvas.drawLine(Offset(x, bottom), Offset(x, bottom + 6), tickPaint);
     }
 
-    // подпись "37 min" остаётся на прежнем месте
     final tp = TextPainter(
       text: const TextSpan(
         text: '37 min',
@@ -417,7 +392,6 @@ class _LineChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Painter для статичной круговой диаграммы
 class _PieChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -442,26 +416,25 @@ class _PieChartPainter extends CustomPainter {
       startRadian += sweep;
     }
 
+    // рамка
     final border = Paint()
       ..color = Colors.white24
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawCircle(center, radius, border);
 
-    final cut = Paint()
-      ..color = const Color.fromARGB(0, 31, 28, 28)
-      ..strokeWidth = 1.2;
-    canvas.drawCircle(center, 6, cut);
-
+    // 💬 текстовые подписи внутри кругов
     final labels = ['Drama', 'Romance', 'Horror', 'Fantasy'];
     startRadian = -pi / 2;
     for (int i = 0; i < slices.length; i++) {
       final sweep = (slices[i] / total) * 2 * pi;
       final mid = startRadian + sweep / 2;
+
       final labelPos = Offset(
         center.dx + (radius * 0.45) * cos(mid),
         center.dy + (radius * 0.45) * sin(mid),
       );
+
       final tp = TextPainter(
         text: TextSpan(
           text: labels[i],
@@ -474,6 +447,7 @@ class _PieChartPainter extends CustomPainter {
         canvas,
         Offset(labelPos.dx - tp.width / 2, labelPos.dy - tp.height / 2),
       );
+
       startRadian += sweep;
     }
   }

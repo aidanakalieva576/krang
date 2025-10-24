@@ -45,6 +45,48 @@ class _SupportPageAdminState extends State<SupportPageAdmin> {
           "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
       "viewed": false,
     },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
+    {
+      "name": "Sofia Lee",
+      "age": "23",
+      "text":
+          "Everything works fine for me. The monthly pricing is ok. I'd like to see more anime.",
+      "viewed": false,
+    },
   ];
 
   @override
@@ -56,148 +98,159 @@ class _SupportPageAdminState extends State<SupportPageAdmin> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      bottomNavigationBar: const NavbarAdmin(selectedIndex: 3),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Заголовок
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Feedback',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black45,
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Список карточек
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                itemCount: feedbacks.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final item = feedbacks[index];
-                  final bool viewed = item["viewed"] == true;
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        feedbacks[index]["viewed"] = true;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: viewed ? readCardColor : unreadCardColor,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      child: Stack(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 🧍 Аватар пользователя
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF414553),
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Image.asset(
-                                  'assets/icons_admin/user.png',
-                                  width: 28,
-                                  height: 28,
-                                  fit: BoxFit.contain,
-                                  color: viewed ? Colors.white54 : Colors.white,
-                                ),
-                              ),
-
-                              const SizedBox(width: 10),
-
-                              // 👤 Имя и текст
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${item["name"]}, ${item["age"]} y.o.',
-                                      style: TextStyle(
-                                        fontFamily: 'Outfit',
-                                        color: viewed
-                                            ? Colors.white60
-                                            : Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      item["text"] ?? '',
-                                      style: TextStyle(
-                                        fontFamily: 'Outfit',
-                                        color: viewed
-                                            ? subtitleColor.withOpacity(0.7)
-                                            : subtitleColor,
-                                        fontSize: 11.5,
-                                        height: 1.35,
-                                      ),
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                // Заголовок
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Feedback',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black45,
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                           ),
-
-                          // 🟢 точка
-                          if (!viewed)
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4CAF50),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.black26),
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+
+                // Список карточек
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                    itemCount: feedbacks.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final item = feedbacks[index];
+                      final bool viewed = item["viewed"] == true;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            feedbacks[index]["viewed"] = true;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: viewed ? readCardColor : unreadCardColor,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Stack(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 🧍 Аватар пользователя
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF414553),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      'assets/icons_admin/user.png',
+                                      width: 28,
+                                      height: 28,
+                                      fit: BoxFit.contain,
+                                      color: viewed
+                                          ? Colors.white54
+                                          : Colors.white,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  // 👤 Имя и текст
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${item["name"]}, ${item["age"]} y.o.',
+                                          style: TextStyle(
+                                            fontFamily: 'Outfit',
+                                            color: viewed
+                                                ? Colors.white60
+                                                : Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          item["text"] ?? '',
+                                          style: TextStyle(
+                                            fontFamily: 'Outfit',
+                                            color: viewed
+                                                ? subtitleColor.withOpacity(0.7)
+                                                : subtitleColor,
+                                            fontSize: 11.5,
+                                            height: 1.35,
+                                          ),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // 🟢 точка
+                              if (!viewed)
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF4CAF50),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.black26),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // 🧭 Навбар поверх контента
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: NavbarAdmin(selectedIndex: 3),
+          ),
+        ],
       ),
     );
   }

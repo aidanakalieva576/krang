@@ -7,8 +7,10 @@ environment:
   sdk: ^3.9.2
 
 dependencies:
+  shared_preferences: ^2.3.0
   flutter:
     sdk: flutter
+  image_picker: ^1.1.1
   cupertino_icons: ^1.0.8
   http: ^1.2.0
 

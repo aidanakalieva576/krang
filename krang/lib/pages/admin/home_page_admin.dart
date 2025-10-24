@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-// ✅ Импортируем компоненты
-// import 'package:krang/components/search.dart';
 import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
-// import 'package:krang/components/navbar_admin.dart';
+import 'add_movie.dart';
 
-// Модель данных
 class ContentItem {
   final String id;
   final String title;
-  final String imageUrl;
+  final String thumbnail_url;
   final String category;
 
   ContentItem({
     required this.id,
     required this.title,
-    required this.imageUrl,
+    required this.thumbnail_url,
     required this.category,
   });
 }
@@ -36,6 +33,8 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   bool _isLoading = false;
   int _selectedIndex = 0;
 
+  final List<String> _categories = ['Horrors', 'Action', 'Comedy', 'Drama'];
+
   Future<void> _fetchMovies() async {
     setState(() => _isLoading = true);
 
@@ -51,7 +50,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
             return ContentItem(
               id: movie['id'].toString(),
               title: movie['title'] ?? '',
-              imageUrl: movie['imageUrl'] ?? '',
+              thumbnail_url: movie['thumbnail_url'] ?? '',
               category: movie['category'] ?? '',
             );
           }).toList();
@@ -63,8 +62,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       setState(() => _isLoading = false);
     }
   }
-
-  final List<String> _categories = ['Horrors', 'Action', 'Comedy', 'Drama'];
 
   @override
   void initState() {
@@ -95,23 +92,22 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 80,
+              ), // 🔹 отступ под навбар
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   const SizedBox(height: 16),
-
-                  // ✅ Используем компонент поиска
                   const Search(),
-
                   const SizedBox(height: 24),
                   _buildCategoriesSection(),
                   const SizedBox(height: 24),
                   _buildAddNewContentCard(),
-
                   const SizedBox(height: 16),
 
                   if (_isLoading)
@@ -120,36 +116,41 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                     )
                   else if (_filteredContent.isEmpty)
                     const Center(
-                      child: Text(
-                        'No content found',
-                        style: TextStyle(color: Colors.white70),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Text(
+                          'No content found',
+                          style: TextStyle(color: Colors.white70),
+                        ),
                       ),
                     )
                   else
                     ..._filteredContent
                         .map((item) => _buildContentCard(item))
                         .toList(),
-
-                  const SizedBox(height: 80),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
 
-      // ✅ Используем компонент Navbar
-      bottomNavigationBar: NavbarAdmin(
-        selectedIndex: _selectedIndex,
-        onItemTapped: (index) {
-          setState(() => _selectedIndex = index);
-          // Здесь можно сделать переход на другие страницы
-        },
+          // ✅ Навбар наложен поверх контента
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: NavbarAdmin(
+              selectedIndex: _selectedIndex,
+              onItemTapped: (index) {
+                setState(() => _selectedIndex = index);
+                // TODO: добавить переход между страницами
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Остальные методы (категории, карточки, действия) оставляем без изменений
   // --- Категории ---
   Widget _buildCategoriesSection() {
     final categories = ['All', ..._categories];
@@ -187,21 +188,22 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   Widget _buildAddNewContentCard() {
     return GestureDetector(
       onTap: () {
-        // позже добавим действие — открытие формы добавления контента
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AddMoviePage()),
+        );
       },
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(
-          color: const Color(0x80414553), // тёмно-серый фон карточки
+          color: const Color(0x80414553),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Левая часть — иконка фотоаппарата
             Container(
               width: 100,
               height: 100,
@@ -212,15 +214,13 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               ),
               child: Center(
                 child: Image.asset(
-                  'assets/icons_admin/camera.png', // путь к твоей иконке
+                  'assets/icons_admin/camera.png',
                   width: 40,
                   height: 40,
                   color: Colors.grey.shade400,
                 ),
               ),
             ),
-
-            // Средняя часть — текст
             const Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -234,13 +234,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                 ),
               ),
             ),
-
-            // Правая часть — кнопка с плюсом
-            Container(
+            SizedBox(
               width: 48,
               height: 48,
               child: Image.asset(
-                'assets/icons_admin/plus.png', // путь к твоей иконке
+                'assets/icons_admin/plus.png',
                 width: 40,
                 height: 40,
               ),
@@ -269,9 +267,9 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                 topLeft: Radius.circular(12),
                 bottomLeft: Radius.circular(12),
               ),
-              image: item.imageUrl.isNotEmpty
+              image: item.thumbnail_url.isNotEmpty
                   ? DecorationImage(
-                      image: NetworkImage(item.imageUrl),
+                      image: NetworkImage(item.thumbnail_url),
                       fit: BoxFit.cover,
                     )
                   : const DecorationImage(
@@ -338,14 +336,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
   }
 
-  // --- Действия ---
   void _viewContent(ContentItem item) {
-    // например, откроем просмотр фильма
     print('Просмотр: ${item.title}');
   }
 
   void _editContent(ContentItem item) {
-    // потом сделаем переход на страницу редактирования
     print('Редактирование: ${item.title}');
   }
 
@@ -382,7 +377,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       setState(() {
         _contentItems.removeWhere((i) => i.id == item.id);
       });
-      // Здесь можно добавить запрос на сервер DELETE /api/movies/:id
       print('Удалено: ${item.title}');
     }
   }

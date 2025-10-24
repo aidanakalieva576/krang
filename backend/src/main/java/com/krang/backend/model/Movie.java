@@ -19,5 +19,5 @@ public class Movie {
 
     private String title;
     private String category;
-    private String imageUrl;
+    private String thumbnail_url;
 }

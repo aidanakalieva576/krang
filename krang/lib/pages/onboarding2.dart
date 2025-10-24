@@ -25,10 +25,7 @@ class _OnboardPageSecondState extends State<OnboardPageSecond> {
               SizedBox(
                 height: 130,
                 child: Center(
-                  child: Image.asset(
-                    'assets/logo.png',
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.asset('assets/logo.png', fit: BoxFit.contain),
                 ),
               ),
               const SizedBox(height: 20),
@@ -62,7 +59,7 @@ class _OnboardPageSecondState extends State<OnboardPageSecond> {
                 height: 46,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/registration');
+                    Navigator.pushNamed(context, '/home');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

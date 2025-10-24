@@ -5,7 +5,7 @@ import 'pages/registration.dart';
 import 'pages/login.dart';
 import 'pages/onboarding.dart';
 import 'pages/onboarding2.dart';
-import 'pages/home.dart';              // ✅ добавь, если есть HomePage
+import 'pages/home.dart'; // ✅ добавь, если есть HomePage
 import 'pages/admin/home_page_admin.dart'; // ✅ путь к HomePageAdmin
 
 void main() {
@@ -18,14 +18,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Routes False',
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
-        '/': (context) => OnboardPage(),
+        '/onboard1': (context) => OnboardPage(),
         '/onboard2': (context) => OnboardPageSecond(),
         '/registration': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
         '/home': (context) => HomePage(),
-        '/admin_home': (context) => const HomePageAdmin(), // ✅ маршрут для админа
+        '/admin_home': (context) =>
+            const HomePageAdmin(), // ✅ маршрут для админа
       },
     );
   }
