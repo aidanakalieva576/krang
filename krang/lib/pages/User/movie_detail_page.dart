@@ -13,7 +13,7 @@ class MovieDetailPage extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          const MoviePoster(imagePath: 'assets/ITonya.png'),
+          const MoviePoster(imagePath: 'assets/icons_user/ITonya.png'),
 
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -30,10 +30,14 @@ class MovieDetailPage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: null,//потом переход на просмотр
+                    onPressed: null, //потом переход на просмотр
                     style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.blueGrey),
-                      padding: MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16)),
+                      backgroundColor: MaterialStatePropertyAll(
+                        Colors.blueGrey,
+                      ),
+                      padding: MaterialStatePropertyAll(
+                        EdgeInsets.symmetric(vertical: 16),
+                      ),
                       shape: MaterialStatePropertyAll(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -46,7 +50,7 @@ class MovieDetailPage extends StatelessWidget {
                 SizedBox(height: 16),
                 MovieDescription(
                   description:
-                  'I, Tonya is a 2017 American biographical sports film chronicling the tumultuous life of American figure skater Tonya Harding, focusing on her rise, her abusive upbringing, dysfunctional relationships, and her involvement in the infamous 1994 attack on rival Nancy Kerrigan.',
+                      'I, Tonya is a 2017 American biographical sports film chronicling the tumultuous life of American figure skater Tonya Harding, focusing on her rise, her abusive upbringing, dysfunctional relationships, and her involvement in the infamous 1994 attack on rival Nancy Kerrigan.',
                 ),
                 SizedBox(height: 16),
                 MovieExtraInfo(

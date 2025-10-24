@@ -41,7 +41,7 @@ class MovieInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/icons/time.png', 
+              'assets/icons/time.png',
               width: 16,
               height: 16,
               color: Colors.white70,
@@ -60,12 +60,12 @@ class MovieInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             5,
-                (index) => Padding(
+            (index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Image.asset(
                 index < rating
-                    ? 'assets/icons/star_filled.png'
-                    : 'assets/icons/star_empty.png',
+                    ? 'assets/icons_admin/full_star.png'
+                    : 'assets/icons_admin/star.png',
                 width: 20,
                 height: 20,
               ),
