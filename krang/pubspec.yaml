@@ -7,13 +7,14 @@ environment:
   sdk: ^3.9.2
 
 dependencies:
-  shared_preferences: ^2.3.0
   flutter:
     sdk: flutter
+  shared_preferences: ^2.3.0
   image_picker: ^1.1.1
   cupertino_icons: ^1.0.8
   http: ^1.2.0
   video_player: ^2.9.1
+
 
 dev_dependencies:
   flutter_test:
@@ -27,6 +28,7 @@ flutter:
     - assets/icons_user/Search.png
     - assets/icons_user/ITonya.png
     - assets/icons_user/star.png
+    - assets/icons_user/empty_star.png
     - assets/icons_user/favourite.png
     - assets/icons_user/avatar.png
     - assets/icons_user/brooklyn_movie.png

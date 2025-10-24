@@ -11,7 +11,7 @@ class ProfileHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Image.asset(
-            'assets/logo.png',
+            'assets/icons_user/logo.png',
             height: 40,
           ),
           CircleAvatar(

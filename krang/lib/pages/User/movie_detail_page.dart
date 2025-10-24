@@ -17,19 +17,29 @@ class MovieDetailPage extends StatelessWidget {
 
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: const Column(
+            child: Column(
               children: [
-                MovieInfo(
+                const MovieInfo(
                   title: 'I, Tonya',
                   subtitle: '8.5 · Tragicomedy, LuckyChap',
                   duration: '2h',
                   age: '18+',
                   rating: 5,
                 ),
-                SizedBox(height: 16),
-                SizedBox(
+                const SizedBox(height: 16),
+
+                Container(
                   width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4A90E2), Color(0xFF0F2027)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: ElevatedButton(
+<<<<<<< HEAD
                     onPressed: null, //потом переход на просмотр
                     style: ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(
@@ -42,18 +52,37 @@ class MovieDetailPage extends StatelessWidget {
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
+=======
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/watch');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text('Watch', style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Watch',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+>>>>>>> d7edde5cc50e90f2fe95a2513c9fecbbaa1d363f
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: 16),
-                MovieDescription(
+
+                const SizedBox(height: 16),
+                const MovieDescription(
                   description:
                       'I, Tonya is a 2017 American biographical sports film chronicling the tumultuous life of American figure skater Tonya Harding, focusing on her rise, her abusive upbringing, dysfunctional relationships, and her involvement in the infamous 1994 attack on rival Nancy Kerrigan.',
                 ),
-                SizedBox(height: 16),
-                MovieExtraInfo(
+                const SizedBox(height: 16),
+                const MovieExtraInfo(
                   year: '2023',
                   platform: 'LuckyChap',
                   director: 'Craig Gillespie',

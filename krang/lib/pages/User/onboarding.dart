@@ -25,7 +25,7 @@ class _OnboardPageState extends State<OnboardPage> {
             height: 130,
             child: Center(
               child: Image.asset(
-                'assets/logo.png',
+                'assets/icons_user/logo.png',
                 fit: BoxFit.contain,
               ),
             ),
