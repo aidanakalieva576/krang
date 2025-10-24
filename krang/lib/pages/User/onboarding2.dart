@@ -13,7 +13,7 @@ class _OnboardPageSecondState extends State<OnboardPageSecond> {
     const background = Color(0xFF1A1A1A);
     const headlineColour = Color(0xFFE6E6E6);
     const subtitleColour = Color(0xFF9A9A9A);
-    const pillBackground = Color(0xFFEFEFEF);
+    // const pillBackground = Color(0xFFEFEFEF);
 
     return Scaffold(
       backgroundColor: background,
@@ -25,7 +25,7 @@ class _OnboardPageSecondState extends State<OnboardPageSecond> {
               SizedBox(
                 height: 130,
                 child: Center(
-                  child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+                  child: Image.asset('assets/icons_user/logo.png', fit: BoxFit.contain),
                 ),
               ),
               const SizedBox(height: 20),
