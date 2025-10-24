@@ -14,7 +14,7 @@ class MovieSection extends StatelessWidget {
       'assets/icons_user/the_fast_and_the_furious.png',
       'assets/posters/inception.jpg',
       'assets/icons_user/the_smashing_machine.png',
-      'assets/icons_user/the_last_pf_us.png'
+      'assets/icons_user/the_last_of_us.png',
     ];
 
     return Column(

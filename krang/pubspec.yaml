@@ -21,7 +21,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
+
 flutter:
+  uses-material-design: true
+
   assets:
     - assets/icons_user/logo.png
     - assets/icons_user/Arrow.png
@@ -44,6 +47,6 @@ flutter:
     - assets/icons_user/ifrit.png
     - assets/icons_user/the_fast_and_the_furious.png
     - assets/icons_user/the_last_of_us.png
-    - assets/icons_user/the_smashing_machine.png
+    - assets/icons_user/
     - assets/icons_admin/
 

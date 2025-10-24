@@ -4,11 +4,7 @@ class ProfileMenuItem extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const ProfileMenuItem({
-    super.key,
-    required this.title,
-    required this.onTap,
-  });
+  const ProfileMenuItem({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +17,8 @@ class ProfileMenuItem extends StatelessWidget {
           fontSize: 16,
         ),
       ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        color: Colors.white54,
-        size: 18,
-      ),
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
   }
 }

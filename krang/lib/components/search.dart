@@ -23,7 +23,7 @@ class _SearchState extends State<Search> {
           hintStyle: TextStyle(color: Colors.grey),
           border: InputBorder.none,
           icon: ImageIcon(
-            AssetImage('assets/Search.png'),
+            AssetImage('assets/icons_user/Search.png'),
             color: Colors.white,
             size: 24,
           ),

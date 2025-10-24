@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class SettingsActionItem extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final IconData? icon; // ✅ иконка теперь необязательная
   final Color color;
   final VoidCallback onTap;
 
   const SettingsActionItem({
     super.key,
     required this.title,
-    required this.icon,
+    this.icon, // ✅ можно не передавать
     required this.color,
     required this.onTap,
   });
@@ -22,8 +22,11 @@ class SettingsActionItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 10),
+            // ✅ Показываем иконку только если она передана
+            if (icon != null) ...[
+              Icon(icon, color: color),
+              const SizedBox(width: 10),
+            ],
             Text(
               title,
               style: TextStyle(

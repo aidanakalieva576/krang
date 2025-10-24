@@ -50,7 +50,8 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/admin/register", // 👈 теперь точно открыт
                     "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/api/**"
                 ).permitAll()
 
                 // 👇 потом ограничиваем всё остальное /api/admin/**
