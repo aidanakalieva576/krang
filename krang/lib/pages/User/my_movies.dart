@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:krang/components/navbar.dart';
 import '../../components/movies_header.dart';
 import '../../components/movie_card.dart';
+import '../../components/continue_watching_button.dart';
 
 class MyMoviesPage extends StatelessWidget {
   const MyMoviesPage({super.key});
@@ -17,17 +18,8 @@ class MyMoviesPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               MoviesHeader(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Text(
-                  'Continue watching',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              ContinueWatchingButton(routeName: '/continue_watching'),
+
               MovieCard(
                 imagePath: 'assets/icons_user/brooklyn_movie.png',
                 title: 'Brooklyn Nine-Nine',

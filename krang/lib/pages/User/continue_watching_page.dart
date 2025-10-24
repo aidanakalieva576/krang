@@ -7,8 +7,7 @@ class ContinueWatchingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Указываем тип данных явно — Map<String, dynamic>
-    final List<Map<String, dynamic>> items = [
+     final List<Map<String, dynamic>> items = [
       {
         'title': 'K-pop Demon hunters',
         'image': 'assets/icons_user/kpop_demon_hunters.png',

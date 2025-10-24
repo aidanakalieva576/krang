@@ -6,6 +6,17 @@ class MovieSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> posterPaths = [
+      'assets/icons_user/barbie.png',
+      'assets/icons_user/chainsawman.png',
+      'assets/icons_user/heads_of_state.png',
+      'assets/icons_user/ifrit.png',
+      'assets/icons_user/the_fast_and_the_furious.png',
+      'assets/posters/inception.jpg',
+      'assets/icons_user/the_smashing_machine.png',
+      'assets/icons_user/the_last_pf_us.png'
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,15 +37,21 @@ class MovieSection extends StatelessWidget {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
-            itemCount: 10,
+            itemCount: posterPaths.length,
             separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  'https://picsum.photos/200/300?random=$index',
-                  width: 130,
-                  fit: BoxFit.cover,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/movie_details');
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    posterPaths[index],
+                    width: 130,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               );
             },

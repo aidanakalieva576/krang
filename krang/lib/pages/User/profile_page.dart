@@ -22,21 +22,21 @@ class ProfilePage extends StatelessWidget {
                   ProfileMenuItem(
                     title: 'Collections',
                     onTap: () {
-                      // переход на страницу
+                      Navigator.pushNamed(context, '/collections');
                     },
                   ),
                   const SizedBox(height: 4),
                   ProfileMenuItem(
                     title: 'Settings',
                     onTap: () {
-                      // переход на страницу
+                      Navigator.pushNamed(context, '/settings');
                     },
                   ),
                   const SizedBox(height: 4),
                   ProfileMenuItem(
                     title: 'Support',
                     onTap: () {
-                      // переход на страницу
+                      Navigator.pushNamed(context, '/support');
                     },
                   ),
                 ],
