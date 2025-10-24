@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../components/navbar.dart';
-import '../components/movies.dart';
-import '../components/categoriesComp.dart';
-import '../components/search.dart';
-import '../components/actors.dart';
+import '../../components/navbar.dart';
+import '../../components/movies.dart';
+import '../../components/categoriesComp.dart';
+import '../../components/search.dart';
+import '../../components/actors.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
