@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../components/navbar.dart';
 import '../../components/movies.dart';
-import '../../components/categoriesSpecial.dart';
+import '../../components/categoriesComp.dart';
 import '../../components/search.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -12,13 +12,12 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  int _selectedIndex = 1; // например, страница "категории" — вторая вкладка
+  int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // здесь можно добавить переходы, если нужно
   }
 
   @override
@@ -29,23 +28,44 @@ class _CategoriesPageState extends State<CategoriesPage> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               child: ListView(
-                padding: const EdgeInsets.only(bottom: 100),
+                padding: const EdgeInsets.only(bottom: 120),
                 children: const [
+                  // 🔍 Поиск
                   Search(),
-                  SizedBox(height: 20),
-                  Category(),
-                  SizedBox(height: 20),
-                  MovieSection(title: "You may like"),
-                  MovieSection(title: "Now watching"),
-                  MovieSection(title: "Coming soon"),
+                  SizedBox(height: 28),
+
+                  // 🧩 Категории
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      "Categories",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  CategorySection(),
+
+                  // 🎬 Фильмы
+                  SizedBox(height: 32),
+                  MovieSection(title: 'Popular Right Now'),
+                  SizedBox(height: 32),
+                  MovieSection(title: 'Watching right now'),
+                  SizedBox(height: 32),
+                  MovieSection(title: 'New'),
+                  SizedBox(height: 32),
+                  MovieSection(title: 'Coming soon'),
                 ],
               ),
             ),
           ),
 
-          // ✅ Навбар поверх контента
+          // ✅ Нижняя панель навигации
           Positioned(
             bottom: 0,
             left: 0,

@@ -6,36 +6,28 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset('assets/icons_user/logo.png', height: 40),
+          // ✅ Логотип KRANG
+          Image.asset(
+            'assets/icons_user/logo.png',
+            height: 42,
+          ),
 
-          // ✅ Кнопка с фоновым цветом
+          // ✅ Круглая иконка пользователя (в точности как на фото)
           Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF3A3A3A), // приятный серо-синий фон
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: Color(0xFF2D2C2C),
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.transparent,
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/icons_user/avatar.png',
-                  fit: BoxFit.cover,
-                  width: 36,
-                  height: 36,
-                ),
-              ),
+            child: const Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 22, // идеально по центру круга
             ),
           ),
         ],

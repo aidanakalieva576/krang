@@ -7,6 +7,7 @@ class SettingsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Верхняя панель
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -29,11 +30,18 @@ class SettingsHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        CircleAvatar(
-          radius: 50,
-          backgroundColor: Colors.grey[800],
-          backgroundImage: const AssetImage('assets/icons_user/avatar.png'),
+
+        // ✅ Только фото (ровное, без круга)
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16), // чуть скруглённые края
+          child: Image.asset(
+            'assets/icons_user/avatar.png',
+            width: 120,
+            height: 120,
+            fit: BoxFit.cover, // полностью заполняет без искажений
+          ),
         ),
+
         const SizedBox(height: 12),
         const Text(
           'Alexis',

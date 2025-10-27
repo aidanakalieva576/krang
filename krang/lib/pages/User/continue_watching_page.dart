@@ -10,19 +10,17 @@ class ContinueWatchingScreen extends StatefulWidget {
 }
 
 class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
-  int _selectedIndex =
-      1; // например, это вторая вкладка (для "Continue Watching")
+  int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // можно добавить навигацию при переключении
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> items = [
+    final items = [
       {
         'title': 'K-pop Demon Hunters',
         'image': 'assets/icons_user/kpop_demon_hunters.png',
@@ -38,23 +36,17 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
         'image': 'assets/icons_user/oitnb.png',
         'progress': 0.3,
       },
-      {
-        'title': 'BoJack Horseman',
-        'image': 'assets/icons_user/the_lovely_bones.png',
-        'progress': 0.5,
-      },
     ];
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF1A1A1A), // ✅ единый фон
       body: Stack(
         children: [
-          // Основной контент
           SafeArea(
             child: Column(
               children: [
                 AppBar(
-                  backgroundColor: Colors.black,
+                  backgroundColor: const Color(0xFF1A1A1A), // ✅ тот же фон
                   elevation: 0,
                   leading: const BackButton(color: Colors.white),
                   title: const Text(
@@ -65,7 +57,7 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
                 Expanded(
                   child: ListView.builder(
                     itemCount: items.length,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemBuilder: (context, index) {
                       final item = items[index];
                       return Padding(
@@ -82,8 +74,6 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
               ],
             ),
           ),
-
-          // ✅ Навбар поверх
           Positioned(
             bottom: 0,
             left: 0,

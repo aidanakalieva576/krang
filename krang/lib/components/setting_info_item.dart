@@ -9,7 +9,7 @@ class SettingsInfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6), // чуть компактнее блок
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -21,7 +21,7 @@ class SettingsInfoItem extends StatelessWidget {
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 1), // 🔹 уменьшено расстояние между title и value
           Text(
             value,
             style: const TextStyle(

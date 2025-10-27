@@ -24,18 +24,24 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
         children: [
           // Контент
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
+              padding: const EdgeInsets.only(
+                left: 24,   // 🔹 больше отступ от левого края
+                right: 24,  // 🔹 больше отступ от правого края
+                bottom: 100,
+                top: 8,     // 🔹 немного пространства сверху
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SettingsHeader(),
+                    const SizedBox(height: 8),
                     const SettingsInfoItem(
                       title: 'Phone number',
                       value: '+777 374 3434',
@@ -48,15 +54,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: 'Password',
                       value: 'Shre******09',
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     SettingsActionItem(
                       title: 'Log out',
-                      color: Colors.white70, // ✅ добавили цвет
+                      color: Colors.white70,
                       onTap: () {},
                     ),
+                    const SizedBox(height: 10),
                     SettingsActionItem(
                       title: 'Delete account',
-                      color: Colors.redAccent, // ✅ добавили цвет
+                      color: Colors.white70,
                       onTap: () {},
                     ),
                   ],

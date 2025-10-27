@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../pages/User/home.dart';
 import '../pages/User/my_movies.dart';
 import '../pages/User/profile_page.dart';
+import '../pages/User/categories.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -28,7 +29,7 @@ class CustomBottomNavBar extends StatelessWidget {
         page = const HomePage();
         break;
       case 1:
-        page = const HomePage();
+        page = const CategoriesPage();
         break;
       case 2:
         page = const MyMoviesPage();

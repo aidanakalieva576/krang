@@ -23,31 +23,77 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> carouselImages = [
+      'assets/icons_user/the_woman_in_cabin_10.png',
+      'assets/icons_user/pickup.png',
+      'assets/icons_user/play_dirty.png',
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               child: ListView(
-                padding: const EdgeInsets.only(bottom: 100),
-                children: const [
-                  Search(),
-                  SizedBox(height: 20),
-                  CategorySection(),
-                  SizedBox(height: 20),
-                  MovieSection(title: 'Popular Right Now'),
-                  MovieSection(title: 'Watching right now'),
-                  MovieSection(title: 'New'),
-                  MovieSection(title: 'Coming soon'),
-                  ActorSection(),
+                padding: const EdgeInsets.only(bottom: 120),
+                children: [
+                  const Search(),
+                  const SizedBox(height: 28),
+
+                  // 🔥 Каруселька "Popular Right Now"
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      "New Realeses",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 120, // чуть выше для лучшего баланса
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: carouselImages.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 16),
+                      itemBuilder: (context, index) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.asset(
+                            carouselImages[index],
+                            width: 196,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+                  const CategorySection(),
+                  const SizedBox(height: 32),
+                  const MovieSection(title: 'Popular Right Now'),
+                  const SizedBox(height: 32),
+                  const MovieSection(title: 'Watching right now'),
+                  const SizedBox(height: 32),
+                  const MovieSection(title: 'New'),
+                  const SizedBox(height: 32),
+                  const MovieSection(title: 'Coming soon'),
+                  const SizedBox(height: 32),
+                  const ActorSection(),
                 ],
               ),
             ),
           ),
 
-          // ✅ Навбар наложен поверх страницы, контент под ним виден
+          // ✅ Навбар поверх контента
           Positioned(
             bottom: 0,
             left: 0,

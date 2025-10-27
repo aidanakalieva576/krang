@@ -9,33 +9,34 @@ class CollectionsScreen extends StatefulWidget {
 }
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
-  int _selectedIndex = 2; // допустим, коллекции — третья вкладка
+  int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // можно добавить переходы, если нужно
   }
 
   @override
   Widget build(BuildContext context) {
+    const backgroundColor = Color(0xFF1A1A1A); // общий цвет
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          // Основной контент
           SafeArea(
             child: Column(
               children: [
                 AppBar(
-                  backgroundColor: Colors.black,
+                  backgroundColor: backgroundColor, // 👈 тот же самый цвет
                   elevation: 0,
                   leading: const BackButton(color: Colors.white),
                   title: const Text(
                     'Collections',
                     style: TextStyle(color: Colors.white),
                   ),
+                  centerTitle: true,
                 ),
                 Expanded(
                   child: Center(
@@ -75,8 +76,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
               ],
             ),
           ),
-
-          // ✅ Навбар поверх контента
           Positioned(
             bottom: 0,
             left: 0,

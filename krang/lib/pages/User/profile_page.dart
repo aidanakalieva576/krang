@@ -23,37 +23,39 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
         children: [
-          // Контент
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 100), // отступ под навбар
+              padding: const EdgeInsets.only(bottom: 100),
               child: Column(
                 children: [
                   const ProfileHeader(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Expanded(
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
                         ProfileMenuItem(
                           title: 'Collections',
+                          backgroundColor: const Color(0xFF2D2C2C),
                           onTap: () {
                             Navigator.pushNamed(context, '/collections');
                           },
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         ProfileMenuItem(
                           title: 'Settings',
+                          backgroundColor: const Color(0xFF2D2C2C),
                           onTap: () {
                             Navigator.pushNamed(context, '/settings');
                           },
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         ProfileMenuItem(
                           title: 'Support',
+                          backgroundColor: const Color(0xFF2D2C2C),
                           onTap: () {
                             Navigator.pushNamed(context, '/support');
                           },
@@ -66,7 +68,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
 
-          // ✅ Навбар поверх контента
           Positioned(
             bottom: 0,
             left: 0,

@@ -36,10 +36,6 @@ class ActorSection extends StatelessWidget {
                     NetworkImage('https://randomuser.me/api/portraits/men/$index.jpg'),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    'Actor ${index + 1}',
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
                 ],
               );
             },

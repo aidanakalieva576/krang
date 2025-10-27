@@ -12,6 +12,7 @@ import 'pages/User/settings_page.dart';
 import 'pages/User/support_page.dart';
 import 'pages/User/continue_watching_page.dart';
 import 'pages/User/movie_detail_page.dart';
+import 'pages/User/categories.dart';
 
 void main() {
   runApp(MyApp());
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         '/support': (context) => SupportScreen(),
         '/continue_watching': (context) => ContinueWatchingScreen(),
         '/movie_details': (context) => MovieDetailPage(),
+        '/categories': (context) => CategoriesPage(),
         '/admin_home': (context) =>
             const HomePageAdmin(), // ✅ маршрут для админа
       },

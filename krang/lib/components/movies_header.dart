@@ -8,7 +8,7 @@ class MoviesHeader extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.only(top: 24, left: 16, right: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, // заголовок остаётся слева
         children: [
           Text(
             'My movies',
@@ -18,12 +18,16 @@ class MoviesHeader extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            "This is a personalized section where\nyou can find the movies you’ve watched",
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 15,
+          SizedBox(height: 16), // немного больше расстояние
+          Center( // центрируем только описание
+            child: Text(
+              "This is a personalized section where\nyou can find the movies you’ve watched",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 15,
+                height: 1.5,
+              ),
             ),
           ),
         ],
