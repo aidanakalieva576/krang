@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:krang/pages/admin/home_page_admin.dart';
-import 'package:krang/pages/admin/users_page_admin.dart';
-import 'package:krang/pages/admin/stats_page_admin.dart';
-import 'package:krang/pages/admin/support_page_admin.dart';
+import '../pages/admin/home_page_admin.dart';
+import '../pages/admin/users_page_admin.dart';
+import '../pages/admin/stats_page_admin.dart';
+import '../pages/admin/support_page_admin.dart';
 
 class NavbarAdmin extends StatefulWidget {
   final int selectedIndex;

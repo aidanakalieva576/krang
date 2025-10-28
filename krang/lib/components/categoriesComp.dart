@@ -9,7 +9,6 @@ class CategorySection extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          const SizedBox(width: 16),
           _buildCategory('All', true),
           _buildCategory('Movies', false),
           _buildCategory('Series', false),
@@ -23,7 +22,7 @@ class CategorySection extends StatelessWidget {
 
   Widget _buildCategory(String text, bool active) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: active ? Colors.blue : Colors.grey[800],

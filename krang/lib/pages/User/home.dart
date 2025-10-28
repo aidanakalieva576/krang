@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../components/navbar.dart';
 import '../../components/movies.dart';
 import '../../components/categoriesComp.dart';
@@ -40,23 +41,24 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(bottom: 120),
                 children: [
                   const Search(),
-                  const SizedBox(height: 28),
 
-                  // 🔥 Каруселька "Popular Right Now"
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
+                  // 🔥 Заголовок "New Releases"
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
-                      "New Realeses",
-                      style: TextStyle(
+                      "New Releases",
+                      style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400, // потоньше
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // 🔥 Карусель
                   SizedBox(
-                    height: 120, // чуть выше для лучшего баланса
+                    height: 120,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -79,21 +81,27 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 32),
                   const CategorySection(),
                   const SizedBox(height: 32),
+
+                  // 🔥 Остальные секции с заголовками
                   const MovieSection(title: 'Popular Right Now'),
                   const SizedBox(height: 32),
+
                   const MovieSection(title: 'Watching right now'),
                   const SizedBox(height: 32),
+
                   const MovieSection(title: 'New'),
                   const SizedBox(height: 32),
+
                   const MovieSection(title: 'Coming soon'),
                   const SizedBox(height: 32),
+
                   const ActorSection(),
                 ],
               ),
             ),
           ),
 
-          // ✅ Навбар поверх контента
+          // ✅ Навбар
           Positioned(
             bottom: 0,
             left: 0,
@@ -104,6 +112,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // 🔤 Вынес стиль заголовков в отдельный виджет
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        title,
+        style: GoogleFonts.outfit(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w200,
+        ),
       ),
     );
   }

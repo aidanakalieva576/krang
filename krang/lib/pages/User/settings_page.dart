@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:krang/components/navbar.dart';
 import '../../components/setting_action_item.dart';
 import '../../components/setting_header.dart';
 import '../../components/setting_info_item.dart';

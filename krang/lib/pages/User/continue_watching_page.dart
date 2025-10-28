@@ -22,42 +22,50 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
   Widget build(BuildContext context) {
     final items = [
       {
-        'title': 'K-pop Demon Hunters',
+        'title': 'K-pop Demon hunters',
         'image': 'assets/icons_user/kpop_demon_hunters.png',
-        'progress': 0.8,
+        'progress': 0.9,
       },
       {
-        'title': 'The Lovely Bones',
+        'title': 'The lovely bones',
         'image': 'assets/icons_user/the_lovely_bones.png',
-        'progress': 0.6,
+        'progress': 0.75,
       },
       {
-        'title': 'Orange Is the New Black',
+        'title': 'The Orange is the new Black',
         'image': 'assets/icons_user/oitnb.png',
-        'progress': 0.3,
+        'progress': 0.25,
       },
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A), // ✅ единый фон
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Column(
+      backgroundColor: const Color(0xFF1A1A1A),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
               children: [
-                AppBar(
-                  backgroundColor: const Color(0xFF1A1A1A), // ✅ тот же фон
-                  elevation: 0,
-                  leading: const BackButton(color: Colors.white),
-                  title: const Text(
-                    'Continue Watching',
-                    style: TextStyle(color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: const [
+                      BackButton(color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Continue watching',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: items.length,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
                       return Padding(
@@ -73,17 +81,17 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
                 ),
               ],
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: CustomBottomNavBar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onItemTapped,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: CustomBottomNavBar(
+                selectedIndex: _selectedIndex,
+                onItemTapped: _onItemTapped,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
