@@ -29,55 +29,68 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
-    
-
     @Override
-    
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        System.out.println("➡️ Request URI: " + request.getRequestURI() + " | Authorization: " + authHeader);
+protected void doFilterInternal(HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain)
+        throws ServletException, IOException {
 
+    final String authHeader = request.getHeader("Authorization");
 
-
-        // 🔹 Если нет токена — пропускаем дальше
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
-        String role = jwtUtil.extractRole(token);
-        System.out.println("🔹 Token=" + token + " | username=" + username + " | role=" + role);
-
-
-        // 🔹 Проверяем, не установлена ли уже аутентификация
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var user = userRepository.findByUsername(username).orElse(null);
-
-            if (user != null && jwtUtil.validateToken(token)) {
-                // ✅ Роль используем напрямую, без префикса ROLE_
-                var authorities = List.of(new SimpleGrantedAuthority(role.toUpperCase()));
-
-                // 🔹 Логируем для отладки
-                System.out.println("✅ AUTH USER=" + username + " | ROLE=" + role.toUpperCase());
-
-                var authToken = new UsernamePasswordAuthenticationToken(
-                        new User(user.getUsername(), user.getPasswordHash(), authorities),
-                        null,
-                        authorities
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                System.out.println("❌ INVALID TOKEN for user=" + username);
-            }
-        }
-
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        System.out.println("⛔ No Authorization header or not Bearer format");
         filterChain.doFilter(request, response);
+        return;
     }
+
+    String token = authHeader.substring(7);
+    String username = jwtUtil.extractUsername(token);
+    String role = jwtUtil.extractRole(token);
+
+    System.out.println("🔹 TOKEN PARSED → username=" + username + ", role=" + role);
+
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        var user = userRepository.findByUsername(username).orElse(null);
+
+        if (user != null && jwtUtil.validateToken(token)) {
+            // нормализуем роль
+            var grantedRole = role.toUpperCase();
+
+            // 🔥 если роль не начинается с "ROLE_", добавим, чтобы проверить гипотезу
+            if (!grantedRole.startsWith("ROLE_")) {
+                System.out.println("⚙️  Role doesn't start with ROLE_ → adding prefix manually");
+                grantedRole = "ROLE_" + grantedRole;
+            }
+
+            var authorities = List.of(new SimpleGrantedAuthority(grantedRole));
+
+            System.out.println("✅ Setting authentication for user=" + username);
+            System.out.println("   Granted authorities = " + authorities);
+
+            var authToken = new UsernamePasswordAuthenticationToken(
+                    new User(user.getUsername(), user.getPasswordHash(), authorities),
+                    null,
+                    authorities
+            );
+
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+            System.out.println("❌ Token invalid or user not found");
+        }
+    }
+
+    // После установки аутентификации выводим, что реально в контексте
+    var contextAuth = SecurityContextHolder.getContext().getAuthentication();
+    if (contextAuth != null) {
+        System.out.println("🔍 CONTEXT AUTH TYPE: " + contextAuth.getClass().getSimpleName());
+        System.out.println("🔍 CONTEXT PRINCIPAL: " + contextAuth.getPrincipal());
+        System.out.println("🔍 CONTEXT AUTHORITIES: " + contextAuth.getAuthorities());
+    } else {
+        System.out.println("⚠️ CONTEXT AUTH IS NULL");
+    }
+
+    filterChain.doFilter(request, response);
+}
+
 }

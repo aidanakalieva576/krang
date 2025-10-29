@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
@@ -42,8 +43,20 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     setState(() => _isLoading = true);
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+
+      if (token == null) {
+        print('⚠️ Токен не найден. Пользователь не авторизован.');
+        return;
+      }
+
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/movies'),
+        Uri.parse('http://localhost:8080/api/admin/movies'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -54,14 +67,17 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               id: movie['id'].toString(),
               title: movie['title'] ?? '',
               thumbnail_url: movie['thumbnail_url'] ?? '',
-              category: movie['category'] ?? '',
+              category: movie['category_id'] ?? '',
               is_hidden: movie['is_hidden'] ?? false,
             );
           }).toList();
         });
+      } else {
+        print('❌ Ошибка загрузки фильмов: ${response.statusCode}');
+        print(response.body);
       }
     } catch (e) {
-      print('Ошибка подключения: $e');
+      print('❌ Ошибка подключения: $e');
     } finally {
       setState(() => _isLoading = false);
     }

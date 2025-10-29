@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../pages/admin/home_page_admin.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class MovieCardAdmin extends StatefulWidget {
   final ContentItem item;
@@ -34,16 +36,31 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
   Future<void> _toggleHidden() async {
     final endpoint = isHidden ? 'unhide' : 'hide';
     final url = Uri.parse(
-      'http://localhost:8080/api/movies/${widget.item.id}/$endpoint',
+      'http://localhost:8080/api/admin/movies/${widget.item.id}/$endpoint',
     );
 
     try {
-      final response = await http.put(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token'); // ← сохраняется при логине
+
+      if (token == null) {
+        debugPrint('❌ Нет токена авторизации');
+        return;
+      }
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // 👈 обязательно
+        },
+      );
 
       if (response.statusCode == 200) {
         setState(() {
           isHidden = !isHidden;
         });
+        debugPrint('✅ Фильм ${isHidden ? "скрыт" : "показан"}');
       } else {
         debugPrint('❌ Ошибка при обновлении: ${response.statusCode}');
       }
