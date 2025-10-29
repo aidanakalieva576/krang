@@ -1,4 +1,5 @@
 package com.krang.backend.service;
+import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,4 +32,14 @@ public class AdminService {
 
         return userRepository.save(admin);
     }
+    public boolean deleteUserByEmail(String email) {
+    Optional<User> userOpt = userRepository.findByEmail(email);
+
+    if (userOpt.isPresent()) {
+        userRepository.delete(userOpt.get());
+        return true;
+    }
+
+    return false;
+}
 }

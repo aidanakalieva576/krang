@@ -41,6 +41,8 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
