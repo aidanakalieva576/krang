@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 
-class CategorySection extends StatelessWidget {
+class CategorySection extends StatefulWidget {
   const CategorySection({super.key});
+
+  @override
+  State<CategorySection> createState() => _CategorySectionState();
+}
+
+class _CategorySectionState extends State<CategorySection> {
+  int _selectedIndex = 0;
+
+  final List<String> categories = [
+    'All',
+    'Movies',
+    'Series',
+    'Cartoons',
+    'Documentaries',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -9,11 +24,20 @@ class CategorySection extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildCategory('All', true),
-          _buildCategory('Movies', false),
-          _buildCategory('Series', false),
-          _buildCategory('Cartoons', false),
-          _buildCategory('Documentaries', false),
+          ...List.generate(
+            categories.length,
+                (index) => GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              child: _buildCategory(
+                categories[index],
+                _selectedIndex == index,
+              ),
+            ),
+          ),
           const SizedBox(width: 16),
         ],
       ),
@@ -21,16 +45,23 @@ class CategorySection extends StatelessWidget {
   }
 
   Widget _buildCategory(String text, bool active) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 125,
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: active ? Colors.blue : Colors.grey[800],
+        color: active
+            ? const Color(0xFF5D648B)
+            : const Color(0xFF343641),
         borderRadius: BorderRadius.circular(20),
       ),
+      alignment: Alignment.center,
       child: Text(
         text,
+        textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.white),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

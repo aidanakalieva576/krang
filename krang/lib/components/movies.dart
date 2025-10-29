@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MovieSection extends StatelessWidget {
   final String title;
@@ -49,7 +50,6 @@ class MovieSection extends StatelessWidget {
       ],
     };
 
-    // Берём список по названию категории
     final posterPaths = postersByCategory[title] ?? [];
 
     return Column(
@@ -59,10 +59,10 @@ class MovieSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             title,
-            style: const TextStyle(
+            style: GoogleFonts.outfit(
               color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontWeight: FontWeight.w200, // 🔹 тонкий шрифт
             ),
           ),
         ),
@@ -79,8 +79,9 @@ class MovieSection extends StatelessWidget {
           SizedBox(
             height: 200,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
+              // 🔹 убрали левый отступ, оставили правый
+              padding: const EdgeInsets.only(right: 16),
               itemCount: posterPaths.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, index) {

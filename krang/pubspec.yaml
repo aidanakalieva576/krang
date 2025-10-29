@@ -59,5 +59,8 @@ flutter:
     - assets/icons_user/the_woman_in_cabin_10.png
     - assets/icons_user/pickup.png
     - assets/icons_user/play_dirty.png
+    - assets/icons_user/actor1.png
+    - assets/icons_user/actor2.png
+    - assets/icons_user/actor3.png
     - assets/icons_admin/
 

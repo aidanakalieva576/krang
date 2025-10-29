@@ -41,27 +41,18 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(bottom: 120),
                 children: [
                   const Search(),
+                  const SizedBox(height: 20),
 
-                  // 🔥 Заголовок "New Releases"
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      "New Releases",
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400, // потоньше
-                      ),
-                    ),
-                  ),
+                  // Заголовок для карусели — оставляем, т.к. это отдельный блок
+                  _buildSectionTitle("New Releases"),
                   const SizedBox(height: 12),
 
-                  // 🔥 Карусель
                   SizedBox(
                     height: 120,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      // убираем внутренний паддинг, чтобы картинки были ближе к борту
+                      padding: EdgeInsets.zero,
                       itemCount: carouselImages.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 16),
                       itemBuilder: (context, index) {
@@ -79,10 +70,12 @@ class _HomePageState extends State<HomePage> {
                   ),
 
                   const SizedBox(height: 32),
+
+                  // Компонент сам должен рисовать свой заголовок — удалил ручной заголовок
                   const CategorySection(),
                   const SizedBox(height: 32),
 
-                  // 🔥 Остальные секции с заголовками
+                  // MovieSection, предположительно рисует заголовок внутри себя
                   const MovieSection(title: 'Popular Right Now'),
                   const SizedBox(height: 32),
 
@@ -95,13 +88,14 @@ class _HomePageState extends State<HomePage> {
                   const MovieSection(title: 'Coming soon'),
                   const SizedBox(height: 32),
 
+                  // ActorSection тоже, вероятно, содержит заголовок внутри
                   const ActorSection(),
                 ],
               ),
             ),
           ),
 
-          // ✅ Навбар
+          // Navbar
           Positioned(
             bottom: 0,
             left: 0,
@@ -116,7 +110,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 🔤 Вынес стиль заголовков в отдельный виджет
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -124,7 +117,7 @@ class _HomePageState extends State<HomePage> {
         title,
         style: GoogleFonts.outfit(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: 15,
           fontWeight: FontWeight.w200,
         ),
       ),
