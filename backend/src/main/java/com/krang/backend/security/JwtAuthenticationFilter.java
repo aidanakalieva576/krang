@@ -29,13 +29,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    
+
     @Override
+    
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-
         final String authHeader = request.getHeader("Authorization");
+        System.out.println("➡️ Request URI: " + request.getRequestURI() + " | Authorization: " + authHeader);
+
+
+
+        // 🔹 Если нет токена — пропускаем дальше
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -43,13 +50,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
         String username = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
+        System.out.println("🔹 Token=" + token + " | username=" + username + " | role=" + role);
 
+
+        // 🔹 Проверяем, не установлена ли уже аутентификация
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var user = userRepository.findByUsername(username).orElse(null);
 
             if (user != null && jwtUtil.validateToken(token)) {
-                // 👇 теперь добавляем роль пользователя
-                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase()));
+                // ✅ Роль используем напрямую, без префикса ROLE_
+                var authorities = List.of(new SimpleGrantedAuthority(role.toUpperCase()));
+
+                // 🔹 Логируем для отладки
+                System.out.println("✅ AUTH USER=" + username + " | ROLE=" + role.toUpperCase());
 
                 var authToken = new UsernamePasswordAuthenticationToken(
                         new User(user.getUsername(), user.getPasswordHash(), authorities),
@@ -59,6 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("❌ INVALID TOKEN for user=" + username);
             }
         }
 

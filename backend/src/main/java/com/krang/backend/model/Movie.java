@@ -18,6 +18,7 @@ public class Movie {
     private Long id;
 
     private String title;
-    private String category;
+    private String category_id;
     private String thumbnail_url;
+    private Boolean is_hidden;
 }

@@ -50,7 +50,8 @@ public class AuthRestController {
             User created = userService.register(req);
 
             // Генерируем JWT токен
-            String token = jwtUtil.generateToken(created.getUsername());
+            String token = jwtUtil.generateToken(created.getUsername(), created.getRole());
+
 
             // Возвращаем пользователя + токен
             return ResponseEntity.status(201).body(
@@ -91,7 +92,8 @@ public class AuthRestController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid password"));
         }
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+
 
         return ResponseEntity.ok(
             Map.of(

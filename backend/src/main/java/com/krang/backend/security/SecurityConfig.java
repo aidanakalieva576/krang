@@ -50,12 +50,12 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/admin/register", // 👈 теперь точно открыт
                     "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/api/**"
+                    "/v3/api-docs/**"
                 ).permitAll()
 
                 // 👇 потом ограничиваем всё остальное /api/admin/**
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+
 
                 // 👇 все остальные запросы — только с токеном
                 .anyRequest().authenticated()

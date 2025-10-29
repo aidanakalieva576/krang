@@ -4,18 +4,21 @@ import 'package:http/http.dart' as http;
 import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
+import '../../components/admin/movie_card_admin.dart';
 
 class ContentItem {
   final String id;
   final String title;
   final String thumbnail_url;
   final String category;
+  final bool is_hidden; // 👈 Добавили поле
 
   ContentItem({
     required this.id,
     required this.title,
     required this.thumbnail_url,
     required this.category,
+    required this.is_hidden, // 👈 Добавили сюда
   });
 }
 
@@ -52,6 +55,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               title: movie['title'] ?? '',
               thumbnail_url: movie['thumbnail_url'] ?? '',
               category: movie['category'] ?? '',
+              is_hidden: movie['is_hidden'] ?? false,
             );
           }).toList();
         });
@@ -125,9 +129,14 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                       ),
                     )
                   else
-                    ..._filteredContent
-                        .map((item) => _buildContentCard(item))
-                        .toList(),
+                    ..._filteredContent.map((item) {
+                      return MovieCardAdmin(
+                        item: item,
+                        onView: () => _viewContent(item),
+                        onEdit: () => _editContent(item),
+                        onDelete: () => _deleteContent(item),
+                      );
+                    }).toList(),
                 ],
               ),
             ),
