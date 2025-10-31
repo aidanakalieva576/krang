@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.krang.backend.dto.CreateMovieRequest;
 import com.krang.backend.model.Movie;
 import com.krang.backend.repository.MovieRepository;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
 @RequestMapping("/api/admin/movies")
@@ -65,7 +65,7 @@ public class MovieController {
         }
 
         Movie movie = movieOpt.get();
-        movie.setIs_hidden(true);
+        movie.setHidden(true);
         movieRepository.save(movie);
         return ResponseEntity.ok(movie);
     }
@@ -79,30 +79,31 @@ public class MovieController {
         }
 
         Movie movie = movieOpt.get();
-        movie.setIs_hidden(false);
+        movie.setHidden(false);
         movieRepository.save(movie);
         return ResponseEntity.ok(movie);
     }
 
-    @PostMapping
+   @PostMapping
 public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
     try {
-        // 🔹 1. Найти или создать категорию
-        String categoryName = request.getCategory().trim();
-
-        String sqlFindCategory = "SELECT id FROM categories WHERE LOWER(name) = LOWER(?)";
-        Long categoryId = null;
-
-        try {
-            categoryId = jdbcTemplate.queryForObject(sqlFindCategory, Long.class, categoryName);
-        } catch (Exception e) {
-            // категории нет — создаём новую
-            String sqlInsertCategory = "INSERT INTO categories (name) VALUES (?) RETURNING id";
-            categoryId = jdbcTemplate.queryForObject(sqlInsertCategory, Long.class, categoryName);
-            System.out.println("🆕 Created new category: " + categoryName + " (id=" + categoryId + ")");
+        // 🔹 Проверяем, что categoryId передан
+        if (request.getCategoryId() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Category ID is required"));
         }
 
-        // 🔹 2. Вставляем фильм с этим category_id
+        Long categoryId = request.getCategoryId();
+
+        // 🔹 Проверяем, что категория существует
+        String sqlFindCategory = "SELECT COUNT(*) FROM categories WHERE id = ?";
+        Integer exists = jdbcTemplate.queryForObject(sqlFindCategory, Integer.class, categoryId);
+        if (exists == null || exists == 0) {
+            return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
+                    .body(Map.of("error", "Category with id " + categoryId + " not found"));
+        }
+
+        // 🔹 Добавляем фильм
         String sqlInsertMovie = """
             INSERT INTO movies (
                 title, description, release_year, type, category_id,
@@ -122,7 +123,7 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
             request.getTrailerUrl()
         );
 
-        // 🔹 3. Возвращаем успешный ответ
+        // 🔹 Ответ
         HashMap<String, Object> response = new HashMap<>();
         response.put("id", movieId);
         response.put("category_id", categoryId);
@@ -136,7 +137,6 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
                 .body("❌ Error creating movie: " + e.getMessage());
     }
 }
-
 
 
 }
