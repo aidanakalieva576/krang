@@ -1,20 +1,24 @@
 # --- Игнорировать всё ---
 *
+*backend/src/main/resources/application.properties
 
-# --- Разрешить только папку krang ---
+# --- Разрешить фронт krang ---
 !krang/
 !krang/**
 
-# --- Разрешить сам .gitignore ---
+# --- Разрешить backend ---
+!backend/
+!backend/**
+!backend/.gitignore
+
+# --- Разрешить .gitignore ---
 !.gitignore
 
-# --- Общие правила для IDE и Flutter ---
+# --- Общие правила ---
 .idea/
 .vscode/
 build/
 .DS_Store
-
-# --- Из старого backend (если пригодится) ---
 *.iml
 *.ipr
 *.iws
