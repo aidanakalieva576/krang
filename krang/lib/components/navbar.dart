@@ -74,7 +74,7 @@ class CustomBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(
             icons.length,
-            (index) => GestureDetector(
+                (index) => GestureDetector(
               onTap: () {
                 onItemTapped(index);
                 _navigateToPage(context, index);

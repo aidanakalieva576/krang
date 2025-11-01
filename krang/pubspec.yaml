@@ -14,19 +14,14 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.0
   video_player: ^2.9.1
-  google_fonts: ^6.2.1
-  
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-
+  flutter_lints: ^5.0.0
 
 flutter:
-  uses-material-design: true
-
   assets:
     - assets/icons_user/logo.png
     - assets/icons_user/Arrow.png
@@ -49,19 +44,10 @@ flutter:
     - assets/icons_user/ifrit.png
     - assets/icons_user/the_fast_and_the_furious.png
     - assets/icons_user/the_last_of_us.png
-    - assets/icons_user/the_guardians_of_the_galaxy.png
-    - assets/icons_user/mortal_combat.png
     - assets/icons_user/the_smashing_machine.png
-    - assets/icons_user/home.png
     - assets/icons_user/nav_fav.png
+    - assets/icons_user/nav_user.png
+    - assets/icons_user/home.png
     - assets/icons_user/nav_search.png
-    - assets/icons_user/nav_user.png
-    - assets/icons_user/nav_user.png
-    - assets/icons_user/the_woman_in_cabin_10.png
-    - assets/icons_user/pickup.png
-    - assets/icons_user/play_dirty.png
-    - assets/icons_user/actor1.png
-    - assets/icons_user/actor2.png
-    - assets/icons_user/actor3.png
     - assets/icons_admin/
 
