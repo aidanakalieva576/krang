@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
 class MovieSection extends StatelessWidget {
   final String title;
   const MovieSection({super.key, required this.title});

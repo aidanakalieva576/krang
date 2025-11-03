@@ -14,6 +14,7 @@ import 'pages/User/continue_watching_page.dart';
 import 'pages/User/movie_detail_page.dart';
 import 'pages/User/my_movies.dart';
 import 'pages/User/profile_page.dart';
+import 'pages/admin/movie_admin.dart';
 
 void main() {
   runApp(MyApp());

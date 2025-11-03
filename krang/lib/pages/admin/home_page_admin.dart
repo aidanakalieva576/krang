@@ -6,6 +6,7 @@ import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
 import '../../components/admin/movie_card_admin.dart';
+import '../admin/movie_admin.dart';
 
 class ContentItem {
   final String id;
@@ -366,8 +367,20 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   }
 
   void _editContent(ContentItem item) {
-    print('Редактирование: ${item.title}');
+    print('✏️ Нажали редактирование: ${item.title}');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditMoviePage(
+          movieId: item.id,
+          title: item.title,
+          category: item.category,
+          thumbnailUrl: item.thumbnail_url,
+        ),
+      ),
+    );
   }
+
 
   void _deleteContent(ContentItem item) async {
     final confirm = await showDialog<bool>(

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
-import 'dart:convert'; // 👈 добавь это
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -253,44 +253,70 @@ class _AddMoviePageState extends State<AddMoviePage> {
                     ),
                     const SizedBox(height: 40),
 
-                    // 📸 Фото
+                    // 📸 Фото с фоном и размытием, как в MovieDetailPage
                     GestureDetector(
                       onTap: _pickImage,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          if (selectedImage == null)
-                            ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                sigmaX: 10,
-                                sigmaY: 10,
-                              ),
-                              child: Image.asset(
-                                'assets/icons_admin/camera_for_edit.png',
-                                width: 130,
-                                height: 130,
-                                color: Colors.white.withOpacity(0.5),
-                              ),
-                            ),
+                          // 🔹 Размытый фон, если выбрана картинка
                           if (selectedImage != null)
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.file(
-                                selectedImage!,
-                                width: 130,
-                                height: 130,
-                                fit: BoxFit.cover,
+                            SizedBox(
+                              width: double.infinity,
+                              height: 400,
+                              child: ImageFiltered(
+                                imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                                child: Image.file(
+                                  selectedImage!,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
+
+                          // 🔹 Затемнение для контраста
+                          if (selectedImage != null)
+                            Container(
+                              width: double.infinity,
+                              height: 400,
+                              color: Colors.black.withOpacity(0.4),
+                            ),
+
+                          // 🔹 Если нет изображения — просто иконка камеры
                           if (selectedImage == null)
-                            Image.asset(
-                              'assets/icons_admin/camera_for_edit.png',
-                              width: 58,
-                              height: 58,
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/icons_admin/camera_for_edit.png',
+                                  width: 70,
+                                  height: 70,
+                                  color: Colors.white70,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Add photo',
+                                  style: TextStyle(color: Colors.white54, fontSize: 16),
+                                ),
+                              ],
+                            ),
+
+                          // 🔹 Основной постер (поверх размытого фона)
+                          if (selectedImage != null)
+                            Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  selectedImage!,
+                                  width: 200,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                         ],
                       ),
                     ),
+
 
                     const SizedBox(height: 40),
 
