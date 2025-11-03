@@ -14,7 +14,7 @@ import 'pages/User/continue_watching_page.dart';
 import 'pages/User/movie_detail_page.dart';
 import 'pages/User/my_movies.dart';
 import 'pages/User/profile_page.dart';
-import 'pages/admin/movie_admin.dart';
+import 'pages/admin/edit_movie.dart';
 
 void main() {
   runApp(MyApp());
@@ -40,8 +40,9 @@ class MyApp extends StatelessWidget {
         '/movie_details': (context) => MovieDetailPage(),
         '/my_movies': (context) => MyMoviesPage(),
         '/profile': (context) => ProfilePage(),
+        '/edit': (context) => EditMovieScreen(),
         '/admin_home': (context) =>
-            const HomePageAdmin(), // ✅ маршрут для админа
+            const HomePageAdmin(), // ✅ маршрут для админ
       },
     );
   }
