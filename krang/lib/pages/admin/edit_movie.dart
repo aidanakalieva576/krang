@@ -8,22 +8,24 @@ class EditMovieScreen extends StatefulWidget {
 }
 
 class _EditMovieScreenState extends State<EditMovieScreen> {
+  // Данные для редактирования
   String title = "The Lego Movie";
   int rating = 4;
-  String? selectedGenre = "Fantasy"; // 🔹 Только один выбранный жанр
-  List<String> allGenres = ["Fantasy", "Drama", "Action", "Animation", "Comedy", "Adventure"];
-
+  List<String> tags = ["Fantasy", "Drama", "Action", "Animation"];
   String description =
       'An ordinary LEGO construction worker, thought to be the prophesied as "special", is recruited to join a quest to stop an evil tyrant from gluing the LEGO universe into eternal stasis.';
   String year = "2014";
   String platform = "The Warner Animation Group";
   String director = "Pascal Charron, Arnaud Delord, Berth Moncorgé";
 
+  // Контроллеры
+  final TextEditingController tagController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController yearController = TextEditingController();
   final TextEditingController platformController = TextEditingController();
   final TextEditingController directorController = TextEditingController();
 
+  // Для хранения выбранной картинки
   String? movieImage = "assets/icons_user/lego_movie.jpeg";
 
   @override
@@ -37,6 +39,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
 
   @override
   void dispose() {
+    tagController.dispose();
     descriptionController.dispose();
     yearController.dispose();
     platformController.dispose();
@@ -44,29 +47,58 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     super.dispose();
   }
 
-  Widget buildGenreTag(String genre) {
-    bool isSelected = selectedGenre == genre;
+  void addTag() {
+    final newTag = tagController.text.trim();
+    if (newTag.isNotEmpty && !tags.contains(newTag)) {
+      setState(() {
+        tags.add(newTag);
+        tagController.clear();
+      });
+    }
+  }
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedGenre = genre;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        margin: const EdgeInsets.only(right: 8, bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFD700) : const Color(0xFF2D2F41),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          genre,
-          style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white,
-            fontWeight: FontWeight.w600,
+  void removeTag(String tag) {
+    setState(() {
+      tags.remove(tag);
+    });
+  }
+
+  Widget buildTag(String tag) {
+    final yellowTags = ["Fantasy"];
+    final greyTags = ["Drama", "Action", "Animation"];
+    final isYellow = yellowTags.contains(tag);
+    final isGrey = greyTags.contains(tag);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      margin: const EdgeInsets.only(right: 8, bottom: 8),
+      decoration: BoxDecoration(
+        color: isYellow
+            ? const Color(0xFFFFD700)
+            : isGrey
+            ? const Color(0xFF2D2F41)
+            : Colors.grey.shade700,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            tag,
+            style: TextStyle(
+              color: isYellow ? Colors.black : Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
+          if (!isYellow)
+            GestureDetector(
+              onTap: () => removeTag(tag),
+              child: const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Icon(Icons.close, size: 16, color: Colors.white70),
+              ),
+            )
+        ],
       ),
     );
   }
@@ -117,47 +149,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     );
   }
 
-  void showGenrePicker() {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF121212),
-          title: const Text(
-            'Choose genre',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: allGenres.length,
-              itemBuilder: (context, index) {
-                String genre = allGenres[index];
-                return ListTile(
-                  title: Text(
-                    genre,
-                    style: TextStyle(
-                      color: genre == selectedGenre
-                          ? Colors.amber
-                          : Colors.white70,
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      selectedGenre = genre;
-                    });
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,7 +159,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔹 Верхняя панель
+              // Верхняя панель
               Row(
                 children: [
                   GestureDetector(
@@ -184,24 +175,50 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 🔹 Картинка фильма
-              Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  image: movieImage != null
-                      ? DecorationImage(
-                    image: AssetImage(movieImage!),
-                    fit: BoxFit.cover,
-                  )
-                      : null,
-                  color: Colors.grey.shade800,
-                ),
+              // Картинка с камерой
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      image: movieImage != null
+                          ? DecorationImage(
+                        image: AssetImage(movieImage!),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  if (movieImage == null)
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.8),
+                            blurRadius: 12,
+                            spreadRadius: 6,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 28,
+                        color: Colors.black54,
+                      ),
+                    ),
+                ],
               ),
 
               const SizedBox(height: 18),
 
-              // 🔹 Название
+              // Название
               Stack(
                 children: [
                   Text(
@@ -227,23 +244,73 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
               const SizedBox(height: 12),
 
-              // 🔹 Рейтинг
+              // Рейтинг звезд
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) => buildStar(index)),
               ),
               const SizedBox(height: 12),
 
-              // 🔹 Жанры
+              // Теги
               Wrap(
                 children: [
-                  if (selectedGenre != null) buildGenreTag(selectedGenre!),
+                  ...tags.map(buildTag).toList(),
                   GestureDetector(
-                    onTap: showGenrePicker,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          return AlertDialog(
+                            backgroundColor: const Color(0xFF121212),
+                            title: const Text(
+                              'Add Tag',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            content: TextField(
+                              controller: tagController,
+                              autofocus: true,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: const InputDecoration(
+                                hintText: 'New tag',
+                                hintStyle: TextStyle(color: Colors.white54),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                  BorderSide(color: Colors.white38),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                              ),
+                              onSubmitted: (_) {
+                                addTag();
+                                Navigator.pop(context);
+                              },
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Cancel',
+                                    style: TextStyle(color: Colors.white70)),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  addTag();
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Add',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8, bottom: 8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2), // меньше кнопка
+                          horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2D2F41),
                         borderRadius: BorderRadius.circular(16),
@@ -253,16 +320,16 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                         style: TextStyle(
                           color: Colors.white70,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          fontSize: 20,
                         ),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
               const SizedBox(height: 20),
 
-              // 🔹 Description
+              // Description
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -287,10 +354,13 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                     borderSide: BorderSide.none,
                   ),
                 ),
+                onChanged: (val) {
+                  description = val;
+                },
               ),
               const SizedBox(height: 18),
 
-              // 🔹 Остальные поля
+              // Year, Platform, Director
               buildInfoInput("Year of production", yearController),
               const SizedBox(height: 12),
               buildInfoInput("Platform", platformController),
@@ -298,19 +368,24 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               buildInfoInput("Director", directorController),
               const SizedBox(height: 24),
 
-              // 🔹 Нижние кнопки
+              // Нижние кнопки с изображениями
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
                     onTap: () {
+                      setState(() {
+                        year = yearController.text.trim();
+                        platform = platformController.text.trim();
+                        director = directorController.text.trim();
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Changes saved!')),
                       );
                     },
                     child: Image.asset(
-                      'assets/icons_admin/done.png',
-                      width: 40,
+                      'assets/icons_admin/done.png',   // локальная галочка
+                      width: 40,                        // тонкая иконка
                       height: 40,
                     ),
                   ),
@@ -320,13 +395,16 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       Navigator.pop(context);
                     },
                     child: Image.asset(
-                      'assets/icons_admin/Cross.png',
-                      width: 42,
+                      'assets/icons_admin/Cross.png',  // локальный крестик
+                      width: 42,                        // ещё чуть меньше
                       height: 42,
                     ),
                   ),
                 ],
               ),
+
+
+
               const SizedBox(height: 24),
             ],
           ),

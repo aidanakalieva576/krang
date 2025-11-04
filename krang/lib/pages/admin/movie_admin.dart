@@ -44,21 +44,22 @@ class _EditMoviePageState extends State<EditMoviePage> {
       rating: 4,
       date: 'August 29, 2023',
       text:
-      'A lot of stupidity wrapped in a pretty package. In fact, it was hard to even finish watching the first season in places, let alone write a review of this empty waste. However, from a technical standpoint, there\'s ...',
+      'A lot of stupidity wrapped in a pretty package...',
     ),
     Review(
       userName: 'Jane Doe',
       userReviewsCount: '500 reviews',
       rating: 5,
       date: 'July 10, 2023',
-      text: 'Absolutely loved the animation and storyline! It kept me hooked from start to finish.',
+      text:
+      'Absolutely loved the animation and storyline!',
     ),
     Review(
       userName: 'John Smith',
       userReviewsCount: '200 reviews',
       rating: 3,
       date: 'June 5, 2023',
-      text: 'Good visuals but the plot was somewhat predictable and slow at times.',
+      text: 'Good visuals but predictable at times.',
     ),
   ];
 
@@ -71,6 +72,7 @@ class _EditMoviePageState extends State<EditMoviePage> {
       body: Stack(
         clipBehavior: Clip.none,
         children: [
+          /// Постер
           Positioned(
             top: -scrollOffset * 0.4,
             left: 0,
@@ -105,6 +107,8 @@ class _EditMoviePageState extends State<EditMoviePage> {
               ),
             ),
           ),
+
+          /// Контент
           SafeArea(
             child: NotificationListener<ScrollNotification>(
               onNotification: (scrollInfo) {
@@ -118,17 +122,37 @@ class _EditMoviePageState extends State<EditMoviePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /// Верхняя панель с кнопкой "Назад" и фото
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 16),
-                      child: GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Image.asset(
-                          'assets/icons_admin/line_to_back.png',
-                          width: 36,
-                          height: 36,
-                        ),
+                      padding:
+                      const EdgeInsets.only(left: 16, top: 16, right: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Image.asset(
+                              'assets/icons_admin/line_to_back.png',
+                              width: 36,
+                              height: 36,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => _showUploadForm(context),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                'assets/icons_admin/add_movie.png', // ← твоя локальная иконка
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
                     const SizedBox(height: posterHeight - 40),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -191,7 +215,10 @@ class _EditMoviePageState extends State<EditMoviePage> {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 30),
+
+                    /// Описание
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -207,7 +234,7 @@ class _EditMoviePageState extends State<EditMoviePage> {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            'An ordinary LEGO construction worker, thought to be the prophesied as "special", is recruited to join a quest to stop an evil tyrant from gluing the LEGO universe into eternal stasis.',
+                            'An ordinary LEGO construction worker ...',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 15,
@@ -218,6 +245,8 @@ class _EditMoviePageState extends State<EditMoviePage> {
                       ),
                     ),
                     const SizedBox(height: 30),
+
+                    /// Инфо
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -226,14 +255,14 @@ class _EditMoviePageState extends State<EditMoviePage> {
                           const SizedBox(height: 10),
                           buildInfoRow('Platform', 'Netflix'),
                           const SizedBox(height: 10),
-                          buildInfoRow(
-                            'Director',
-                            'Phil Lord, Christopher Miller',
-                          ),
+                          buildInfoRow('Director', 'Phil Lord, Christopher Miller'),
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 40),
+
+                    /// Кнопка отзывов
                     Center(
                       child: ElevatedButton.icon(
                         onPressed: () => _showReviewsSheet(context),
@@ -259,77 +288,6 @@ class _EditMoviePageState extends State<EditMoviePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () => print('Hide clicked'),
-                          child: Image.asset(
-                            'assets/icons_admin/hide.png',
-                            width: 42,
-                            height: 42,
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, '/edit'),
-                          child: Image.asset(
-                            'assets/icons_admin/edit.png',
-                            width: 42,
-                            height: 42,
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  backgroundColor: const Color(0xFF1E1E1E),
-                                  title: const Text(
-                                    "Delete Movie",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  content: const Text(
-                                    "Are you sure you want to delete this movie?",
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        "Cancel",
-                                        style: TextStyle(color: Colors.blueAccent),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        print("Movie deleted");
-                                        // Здесь можно добавить реальную логику удаления
-                                      },
-                                      child: const Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: Image.asset(
-                            'assets/icons_admin/delete_movie.png',
-                            width: 42,
-                            height: 42,
-                          ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 60),
                   ],
                 ),
@@ -341,6 +299,7 @@ class _EditMoviePageState extends State<EditMoviePage> {
     );
   }
 
+  /// 🧩 Инфо ряд
   static Widget buildInfoRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,6 +329,23 @@ class _EditMoviePageState extends State<EditMoviePage> {
     );
   }
 
+  /// 🧾 Показываем форму UploadFormPage как модальное окно
+  void _showUploadForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const Padding(
+        padding: EdgeInsets.only(top: 12.0),
+        child: UploadFormContent(),
+      ),
+    );
+  }
+
+  /// Отзывы
   void _showReviewsSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -409,10 +385,10 @@ class _EditMoviePageState extends State<EditMoviePage> {
       children: [
         Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 18,
               backgroundColor: Colors.white24,
-              child: const Icon(Icons.person, color: Colors.black54),
+              child: Icon(Icons.person, color: Colors.black54),
             ),
             const SizedBox(width: 12),
             Column(
@@ -453,10 +429,7 @@ class _EditMoviePageState extends State<EditMoviePage> {
         const SizedBox(height: 8),
         Text(
           review.date,
-          style: const TextStyle(
-            color: Colors.white54,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.white54, fontSize: 12),
         ),
         const SizedBox(height: 8),
         Text(
@@ -472,25 +445,158 @@ class _EditMoviePageState extends State<EditMoviePage> {
   }
 }
 
-void main() {
-  runApp(const MyApp());
+/// 🎬 Контент формы (из UploadFormPage)
+class UploadFormContent extends StatefulWidget {
+  const UploadFormContent({super.key});
+
+  @override
+  State<UploadFormContent> createState() => _UploadFormContentState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _UploadFormContentState extends State<UploadFormContent> {
+  String? selectedOption;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController durationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Edit Movie Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(useMaterial3: true),
-      home: const EditMoviePage(
-        movieId: '1',
-        title: 'The LEGO Movie',
-        category: 'Animation',
-        thumbnailUrl:
-        'https://upload.wikimedia.org/wikipedia/en/1/10/The_Lego_Movie_poster.jpg',
+    return Center(
+      child: SingleChildScrollView(
+        padding:
+        EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          width: 320,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  color: Colors.grey[700],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Icon(Icons.upload, color: Colors.black, size: 50),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Name:", style: TextStyle(color: Colors.white)),
+              ),
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Text("After:",
+                      style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[700],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: DropdownButton<String>(
+                        value: selectedOption,
+                        dropdownColor: Colors.grey[800],
+                        underline: const SizedBox(),
+                        isExpanded: true,
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.white),
+                        hint: const Text("Options",
+                            style: TextStyle(color: Colors.white70)),
+                        items: ["Option 1", "Option 2", "Option 3"]
+                            .map(
+                              (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e,
+                                style:
+                                const TextStyle(color: Colors.white)),
+                          ),
+                        )
+                            .toList(),
+                        onChanged: (value) =>
+                            setState(() => selectedOption = value),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child:
+                Text("Duration:", style: TextStyle(color: Colors.white)),
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 60,
+                    child: TextField(
+                      controller: durationController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text("min",
+                      style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      // логика подтверждения
+                    },
+                    child: Image.asset(
+                      'assets/icons_admin/done.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Image.asset(
+                      'assets/icons_admin/cross.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
