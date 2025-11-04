@@ -9,7 +9,7 @@ class NavbarAdmin extends StatefulWidget {
   final Function(int)? onItemTapped;
 
   const NavbarAdmin({Key? key, required this.selectedIndex, this.onItemTapped})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<NavbarAdmin> createState() => _NavbarAdminState();
@@ -78,7 +78,7 @@ class _NavbarAdminState extends State<NavbarAdmin> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(
           icons.length,
-          (index) => _buildNavItem(context, icons[index], index),
+              (index) => _buildNavItem(context, icons[index], index),
         ),
       ),
     );
