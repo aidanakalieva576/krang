@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../components/setting_action_item.dart';
 import '../../components/setting_info_item.dart';
+import '../../components/setting_action_item.dart';
 import '../../components/navbar_admin.dart';
 
 class AdminSettingsPage extends StatefulWidget {
@@ -12,18 +12,20 @@ class AdminSettingsPage extends StatefulWidget {
 }
 
 class _AdminSettingsPageState extends State<AdminSettingsPage> {
-  int _selectedIndex = 3; // активная вкладка (настройки)
+  int _selectedIndex = 3;
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // 🔹 Очистим сохранённые данные
     await prefs.clear();
-
-    // 🔹 Переход на логин с очисткой стека
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
+  }
+
+  void _deleteAccount() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Account deleted')),
+    );
   }
 
   @override
@@ -34,74 +36,74 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                bottom: 100,
-                top: 8,
-              ),
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 100, top: 8),
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start, // всё выровнено слева
                   children: [
-                    // 🔹 Хедер с аватаром и именем
-                    Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Settings',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    // 🔹 Заголовок по центру
+                    const Center(
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 24),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            'assets/icons_user/avatar.png',
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 🔹 Аватар и имя
+                    Center(
+                      child: Column(
+                        children: const [
+                          CircleAvatar(
+                            radius: 55,
+                            backgroundColor: Colors.grey,
+                            child: Icon(Icons.person, color: Colors.white, size: 70),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Alexis',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                          SizedBox(height: 12),
+                          Text(
+                            'Alexis',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const Text(
-                          'Change profile nickname',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 14,
+                          Text(
+                            'Change profile nickname',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                        ],
+                      ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 32),
+
+                    // 🔹 Информация (всё прижато к левому краю)
                     const SettingsInfoItem(
-                      title: 'Phone number',
-                      value: '+777 374 3434',
+                      title: 'Phone number:',
+                      value: '+7 777 374 3434',
                     ),
+                    const SizedBox(height: 18),
                     const SettingsInfoItem(
-                      title: 'Email',
+                      title: 'Email:',
                       value: 'Alexis@gmail.com',
                     ),
+                    const SizedBox(height: 18),
                     const SettingsInfoItem(
-                      title: 'Password',
+                      title: 'Password:',
                       value: 'Shre******09',
                     ),
+
                     const SizedBox(height: 28),
 
-                    // 🔥 Log out
+                    // 🔹 Кнопка Log out
                     SettingsActionItem(
                       title: 'Log out',
                       color: Colors.white70,
@@ -110,11 +112,11 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
 
                     const SizedBox(height: 10),
 
-                    // 🧨 Delete account
+                    // 🔹 Кнопка Delete account
                     SettingsActionItem(
                       title: 'Delete account',
                       color: Colors.white70,
-                      onTap: () {},
+                      onTap: _deleteAccount,
                     ),
                   ],
                 ),
@@ -125,9 +127,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
           // 🔹 Навбар внизу
           Align(
             alignment: Alignment.bottomCenter,
-            child: NavbarAdmin(
-              selectedIndex: _selectedIndex,
-            ),
+            child: NavbarAdmin(selectedIndex: _selectedIndex),
           ),
         ],
       ),
