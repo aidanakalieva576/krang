@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../pages/admin/home_page_admin.dart';
 import '../pages/admin/users_page_admin.dart';
 import '../pages/admin/stats_page_admin.dart';
-import '../pages/admin/support_page_admin.dart';
+import '../pages/admin/admin_settings_page.dart';
 
 class NavbarAdmin extends StatefulWidget {
   final int selectedIndex;
@@ -20,7 +20,7 @@ class _NavbarAdminState extends State<NavbarAdmin> {
     'assets/icons_admin/icon_movies.png',
     'assets/icons_admin/icon_users.png',
     'assets/icons_admin/icon_stats.png',
-    'assets/icons_admin/icon_support.png',
+    'assets/icons_user/nav_user.png',
   ];
 
   void _handleNavigation(BuildContext context, int index) {
@@ -41,7 +41,7 @@ class _NavbarAdminState extends State<NavbarAdmin> {
         targetPage = StatsPageAdmin();
         break;
       case 3:
-        targetPage = SupportPageAdmin();
+        targetPage = AdminSettingsPage();
         break;
     }
 
