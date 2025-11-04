@@ -9,7 +9,7 @@ class CollectionsScreen extends StatefulWidget {
 }
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
-  int _selectedIndex = 2;
+  int _selectedIndex = -1; // 👈 ничего не подсвечено
 
   void _onItemTapped(int index) {
     setState(() {
@@ -19,7 +19,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const backgroundColor = Color(0xFF1A1A1A); // общий цвет
+    const backgroundColor = Color(0xFF1A1A1A);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -29,7 +29,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
             child: Column(
               children: [
                 AppBar(
-                  backgroundColor: backgroundColor, // 👈 тот же самый цвет
+                  backgroundColor: backgroundColor,
                   elevation: 0,
                   leading: const BackButton(color: Colors.white),
                   title: const Text(

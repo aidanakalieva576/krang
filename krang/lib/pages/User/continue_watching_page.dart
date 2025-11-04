@@ -10,7 +10,7 @@ class ContinueWatchingScreen extends StatefulWidget {
 }
 
 class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
-  int _selectedIndex = 1;
+  int _selectedIndex = -1;
 
   void _onItemTapped(int index) {
     setState(() {
