@@ -16,7 +16,7 @@ class _MovieSectionState extends State<MovieSection> {
 
   // 🔹 Определяем URL для конкретного раздела
   String _getApiUrl() {
-    final base = 'http://10.0.2.2:8080/api/public/movies';
+    final base = 'http://192.168.123.35:8080/api/public/movies';
 
     switch (widget.title.toLowerCase()) {
       case 'popular right now':

@@ -1,22 +1,27 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditMovieScreen extends StatefulWidget {
-  const EditMovieScreen({super.key});
+  final int movieId; // ← принимаем ID фильма
+
+  const EditMovieScreen({super.key, required this.movieId});
 
   @override
   State<EditMovieScreen> createState() => _EditMovieScreenState();
 }
 
 class _EditMovieScreenState extends State<EditMovieScreen> {
-  // Данные для редактирования
-  String title = "The Lego Movie";
-  int rating = 4;
-  List<String> tags = ["Fantasy", "Drama", "Action", "Animation"];
-  String description =
-      'An ordinary LEGO construction worker, thought to be the prophesied as "special", is recruited to join a quest to stop an evil tyrant from gluing the LEGO universe into eternal stasis.';
-  String year = "2014";
-  String platform = "The Warner Animation Group";
-  String director = "Pascal Charron, Arnaud Delord, Berth Moncorgé";
+  // Данные
+  String title = "";
+  int rating = 0;
+  List<String> tags = [];
+  String description = "";
+  String year = "";
+  String platform = "";
+  String director = "";
+  String? movieImage;
 
   // Контроллеры
   final TextEditingController tagController = TextEditingController();
@@ -25,26 +30,66 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
   final TextEditingController platformController = TextEditingController();
   final TextEditingController directorController = TextEditingController();
 
-  // Для хранения выбранной картинки
-  String? movieImage = "assets/icons_user/lego_movie.jpeg";
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    descriptionController.text = description;
-    yearController.text = year;
-    platformController.text = platform;
-    directorController.text = director;
+    loadMovieData();
   }
 
-  @override
-  void dispose() {
-    tagController.dispose();
-    descriptionController.dispose();
-    yearController.dispose();
-    platformController.dispose();
-    directorController.dispose();
-    super.dispose();
+  Future<void> loadMovieData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      final response = await http.get(
+        Uri.parse(
+          'http://192.168.123.35:8080/api/admin/movies/${widget.movieId}',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 GET /movies/${widget.movieId}');
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          title = data['title'] ?? '';
+          description = data['description'] ?? '';
+          year = (data['releaseYear'] ?? '').toString();
+          platform = data['platform'] ?? '';
+          director = data['director'] ?? '';
+          movieImage = data['thumbnailUrl'];
+          tags = [if (data['category'] != null) data['category']];
+          descriptionController.text = description;
+          yearController.text = year;
+          platformController.text = platform;
+          directorController.text = director;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load movie (${response.statusCode})');
+      }
+    } catch (e) {
+      debugPrint("❌ Error loading movie: $e");
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to load movie data")),
+      );
+    }
   }
 
   void addTag() {
@@ -97,7 +142,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                 padding: EdgeInsets.only(left: 4),
                 child: Icon(Icons.close, size: 16, color: Colors.white70),
               ),
-            )
+            ),
         ],
       ),
     );
@@ -137,8 +182,10 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFF2D2F41),
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -151,6 +198,13 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF1A1A2E),
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       body: SafeArea(
@@ -185,9 +239,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       borderRadius: BorderRadius.circular(24),
                       image: movieImage != null
                           ? DecorationImage(
-                        image: AssetImage(movieImage!),
-                        fit: BoxFit.cover,
-                      )
+                              image: NetworkImage(movieImage!),
+                              fit: BoxFit.cover,
+                            )
                           : null,
                       color: Colors.grey.shade800,
                     ),
@@ -274,8 +328,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                                 hintText: 'New tag',
                                 hintStyle: TextStyle(color: Colors.white54),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                  BorderSide(color: Colors.white38),
+                                  borderSide: BorderSide(color: Colors.white38),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(color: Colors.white),
@@ -288,19 +341,21 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Cancel',
-                                    style: TextStyle(color: Colors.white70)),
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
                                   addTag();
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Add',
-                                    style: TextStyle(color: Colors.white)),
+                                child: const Text(
+                                  'Add',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ],
                           );
@@ -310,7 +365,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                     child: Container(
                       margin: const EdgeInsets.only(right: 8, bottom: 8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2D2F41),
                         borderRadius: BorderRadius.circular(16),
@@ -324,7 +381,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -368,43 +425,33 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               buildInfoInput("Director", directorController),
               const SizedBox(height: 24),
 
-              // Нижние кнопки с изображениями
+              // Нижние кнопки
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        year = yearController.text.trim();
-                        platform = platformController.text.trim();
-                        director = directorController.text.trim();
-                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Changes saved!')),
                       );
                     },
                     child: Image.asset(
-                      'assets/icons_admin/done.png',   // локальная галочка
-                      width: 40,                        // тонкая иконка
+                      'assets/icons_admin/done.png',
+                      width: 40,
                       height: 40,
                     ),
                   ),
                   const SizedBox(width: 20),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: Image.asset(
-                      'assets/icons_admin/Cross.png',  // локальный крестик
-                      width: 42,                        // ещё чуть меньше
+                      'assets/icons_admin/Cross.png',
+                      width: 42,
                       height: 42,
                     ),
                   ),
                 ],
               ),
-
-
-
               const SizedBox(height: 24),
             ],
           ),

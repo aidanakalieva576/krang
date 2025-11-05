@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // импорт всех нужных страниц
 import 'pages/User/registration.dart';
 import 'pages/User/login.dart';
 import 'pages/User/onboarding.dart';
 import 'pages/User/onboarding2.dart';
-import 'pages/User/home.dart'; // ✅ добавь, если есть HomePage
-import 'pages/admin/home_page_admin.dart'; // ✅ путь к HomePageAdmin
+import 'pages/User/home.dart';
+import 'pages/admin/home_page_admin.dart';
 import 'pages/User/collections_page.dart';
 import 'pages/User/settings_page.dart';
 import 'pages/User/support_page.dart';
@@ -16,9 +18,8 @@ import 'pages/User/my_movies.dart';
 import 'pages/User/profile_page.dart';
 import 'pages/admin/movie_admin.dart';
 import 'pages/User/phone_verification_page.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // генерируется автоматически
+import 'pages/admin/edit_movie.dart';
+import 'pages/admin/movie_admin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Routes False',
+      title: 'Routes Fixed',
       initialRoute: '/login',
       routes: {
         '/onboard1': (context) => OnboardPage(),
@@ -46,11 +47,20 @@ class MyApp extends StatelessWidget {
         '/movie_details': (context) => MovieDetailPage(),
         '/my_movies': (context) => MyMoviesPage(),
         '/profile': (context) => ProfilePage(),
-        '/edit': (context) => EditMovieScreen(),
-        '/admin_home': (context) =>
-            const HomePageAdmin(), // ✅ маршрут для админа
+        '/admin_home': (context) => const HomePageAdmin(),
         '/phone_verification': (context) => PhoneVerificationPage(),
-        '/edit': (context) => EditMovieScreen(),
+      },
+
+      // 🧠 Добавляем onGenerateRoute — чтобы можно было передавать movieId
+      onGenerateRoute: (settings) {
+        if (settings.name == '/edit') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final movieId = args?['movieId'] ?? 0; // если не передан, будет 0
+          return MaterialPageRoute(
+            builder: (context) => EditMovieScreen(movieId: movieId),
+          );
+        }
+        return null;
       },
     );
   }

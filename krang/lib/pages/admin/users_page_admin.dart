@@ -47,7 +47,7 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
       }
 
       final response = await http.get(
-        Uri.parse("http://10.0.2.2:8080/api/admin/users"),
+        Uri.parse("http://192.168.123.35:8080/api/admin/users"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -108,7 +108,7 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
 
     try {
       final response = await http.delete(
-        Uri.parse("http://10.0.2.2:8080/api/admin/delete"),
+        Uri.parse("http://192.168.123.35:8080/api/admin/delete"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

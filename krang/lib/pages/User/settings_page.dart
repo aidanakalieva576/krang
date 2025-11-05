@@ -48,7 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _fetchProfile() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/users/me'),
+        Uri.parse('http://192.168.123.35:8080/api/users/me'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -73,7 +73,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _updateProfile() async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8080/api/users/edit'),
+        Uri.parse('http://192.168.123.35:8080/api/users/edit'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

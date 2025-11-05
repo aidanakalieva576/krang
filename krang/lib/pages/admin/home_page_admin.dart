@@ -6,21 +6,21 @@ import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
 import '../../components/admin/movie_card_admin.dart';
-import '../admin/movie_admin.dart';
+import '../admin/edit_movie.dart'; // ✅ правильный импорт
 
 class ContentItem {
   final String id;
   final String title;
   final String thumbnail_url;
   final String category;
-  final bool is_hidden; // 👈 Добавили поле
+  final bool is_hidden;
 
   ContentItem({
     required this.id,
     required this.title,
     required this.thumbnail_url,
     required this.category,
-    required this.is_hidden, // 👈 Добавили сюда
+    required this.is_hidden,
   });
 }
 
@@ -53,7 +53,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       }
 
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/admin/movies'),
+        Uri.parse('http://192.168.123.35:8080/api/admin/movies'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               id: movie['id'].toString(),
               title: movie['title'] ?? '',
               thumbnail_url: movie['thumbnail_url'] ?? '',
-              category: movie['category_id'] ?? '',
+              category: movie['category_id']?.toString() ?? '',
               is_hidden: movie['is_hidden'] ?? false,
             );
           }).toList();
@@ -117,9 +117,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 80,
-              ), // 🔹 отступ под навбар
+              padding: const EdgeInsets.only(bottom: 80),
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
@@ -159,7 +157,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
             ),
           ),
 
-          // ✅ Навбар наложен поверх контента
+          // ✅ Нижний навбар
           Positioned(
             bottom: 0,
             left: 0,
@@ -168,7 +166,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               selectedIndex: _selectedIndex,
               onItemTapped: (index) {
                 setState(() => _selectedIndex = index);
-                // TODO: добавить переход между страницами
+                // можно добавить переход между страницами
               },
             ),
           ),
@@ -177,7 +175,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
   }
 
-  // --- Категории ---
   Widget _buildCategoriesSection() {
     final categories = ['All', ..._categories];
     return SizedBox(
@@ -210,7 +207,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
   }
 
-  // --- Карточка добавления контента ---
   Widget _buildAddNewContentCard() {
     return GestureDetector(
       onTap: () {
@@ -275,93 +271,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
   }
 
-  // --- Карточка контента ---
-  Widget _buildContentCard(ContentItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 100,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
-              ),
-              image: item.thumbnail_url.isNotEmpty
-                  ? DecorationImage(
-                      image: NetworkImage(item.thumbnail_url),
-                      fit: BoxFit.cover,
-                    )
-                  : const DecorationImage(
-                      image: AssetImage('assets/placeholder.png'),
-                      fit: BoxFit.cover,
-                    ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.category,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.visibility,
-                          color: Colors.white70,
-                          size: 22,
-                        ),
-                        onPressed: () => _viewContent(item),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.blueAccent,
-                          size: 22,
-                        ),
-                        onPressed: () => _editContent(item),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.redAccent,
-                          size: 22,
-                        ),
-                        onPressed: () => _deleteContent(item),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _viewContent(ContentItem item) {
     print('Просмотр: ${item.title}');
   }
@@ -371,16 +280,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditMoviePage(
-          movieId: item.id,
-          title: item.title,
-          category: item.category,
-          thumbnailUrl: item.thumbnail_url,
+        builder: (context) => EditMovieScreen(
+          movieId: int.parse(item.id), // ✅ передаём правильный тип
         ),
       ),
     );
   }
-
 
   void _deleteContent(ContentItem item) async {
     final confirm = await showDialog<bool>(

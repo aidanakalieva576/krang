@@ -138,5 +138,38 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
     }
 }
 
+// 🔹 Получить информацию о конкретном фильме
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getMovieById(@PathVariable Long id) {
+        Optional<Movie> optionalMovie = movieRepository.findById(id);
+        if (optionalMovie.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND)
+                    .body(Map.of("error", "Movie not found"));
+        }
+
+        Movie movie = optionalMovie.get();
+
+        Map<String, Object> movieData = new HashMap<>();
+        movieData.put("id", movie.getId());
+        movieData.put("title", movie.getTitle());
+        movieData.put("description", movie.getDescription());
+        movieData.put("releaseYear", movie.getReleaseYear());
+        movieData.put("type", movie.getType());
+        movieData.put("platform", movie.getPlatform());
+        movieData.put("director", movie.getDirector());
+        movieData.put("thumbnailUrl", movie.getThumbnailUrl());
+        movieData.put("videoUrl", movie.getVideoUrl());
+        movieData.put("trailerUrl", movie.getTrailerUrl());
+        movieData.put("category", movie.getCategory() != null ? movie.getCategory().getName() : null);
+        movieData.put("durationSeconds", movie.getDurationSeconds());
+        movieData.put("isHidden", movie.isHidden());
+        movieData.put("createdAt", movie.getCreatedAt());
+        movieData.put("updatedAt", movie.getUpdatedAt());
+
+        return ResponseEntity.ok(movieData);
+    }
+
+
+
 
 }
