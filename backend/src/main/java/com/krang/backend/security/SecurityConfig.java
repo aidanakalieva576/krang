@@ -66,7 +66,8 @@ public CorsConfigurationSource corsConfigurationSource() {
                     "/api/admin/register",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
-                    "/api/public/movies/**"
+                    "/api/public/movies/**",
+                    "api/users/**"
                 ).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()

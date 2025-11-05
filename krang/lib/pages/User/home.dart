@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 20),
 
                   // Заголовок для карусели — оставляем, т.к. это отдельный блок
-                  _buildSectionTitle("New Releases"),
+                  _buildSectionTitle("For you"),
                   const SizedBox(height: 12),
 
                   SizedBox(

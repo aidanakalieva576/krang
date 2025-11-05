@@ -5,8 +5,8 @@ import 'pages/User/registration.dart';
 import 'pages/User/login.dart';
 import 'pages/User/onboarding.dart';
 import 'pages/User/onboarding2.dart';
-import 'pages/User/home.dart';
-import 'pages/admin/home_page_admin.dart';
+import 'pages/User/home.dart'; // ✅ добавь, если есть HomePage
+import 'pages/admin/home_page_admin.dart'; // ✅ путь к HomePageAdmin
 import 'pages/User/collections_page.dart';
 import 'pages/User/settings_page.dart';
 import 'pages/User/support_page.dart';
@@ -14,8 +14,15 @@ import 'pages/User/continue_watching_page.dart';
 import 'pages/User/movie_detail_page.dart';
 import 'pages/User/my_movies.dart';
 import 'pages/User/profile_page.dart';
-import 'pages/admin/edit_movie.dart';
-void main() {
+import 'pages/admin/movie_admin.dart';
+import 'pages/User/phone_verification_page.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // генерируется автоматически
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -41,7 +48,9 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(),
         '/edit': (context) => EditMovieScreen(),
         '/admin_home': (context) =>
-            const HomePageAdmin(), // ✅ маршрут для админ
+            const HomePageAdmin(), // ✅ маршрут для админа
+        '/phone_verification': (context) => PhoneVerificationPage(),
+        '/edit': (context) => EditMovieScreen(),
       },
     );
   }

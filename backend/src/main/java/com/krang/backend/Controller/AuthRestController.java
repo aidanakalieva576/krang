@@ -81,6 +81,7 @@ public class AuthRestController {
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
+        email = email.trim().toLowerCase(); // 👈 добавь это
 
         var user = userRepository.findByEmail(email).orElse(null);
 

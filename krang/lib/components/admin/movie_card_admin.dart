@@ -36,7 +36,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
   Future<void> _toggleHidden() async {
     final endpoint = isHidden ? 'unhide' : 'hide';
     final url = Uri.parse(
-      'http://localhost:8080/api/admin/movies/${widget.item.id}/$endpoint',
+      'http://10.0.2.2:8080/api/admin/movies/${widget.item.id}/$endpoint',
     );
 
     try {

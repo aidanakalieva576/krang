@@ -53,7 +53,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/admin/movies'),
+        Uri.parse('http://10.0.2.2:8080/api/admin/movies'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

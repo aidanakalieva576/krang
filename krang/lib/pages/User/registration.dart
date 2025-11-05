@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -21,18 +22,24 @@ class _RegisterPageState extends State<RegisterPage> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
+    // 🔹 Локальные проверки до запроса
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields")),
-      );
+      _showToast("Please fill in all fields", isError: true);
+      return;
+    }
+    if (!email.contains('@') || !email.contains('.')) {
+      _showToast("Please enter a valid email address", isError: true);
+      return;
+    }
+    if (password.length < 6) {
+      _showToast("Password must be at least 6 characters", isError: true);
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
-      // ⚠️ Замени localhost на 10.0.2.2 если ты на Android-эмуляторе
-      final url = Uri.parse('http://localhost:8080/api/auth/register');
+      final url = Uri.parse('http://10.0.2.2:8080/api/auth/register');
 
       final response = await http.post(
         url,
@@ -44,45 +51,95 @@ class _RegisterPageState extends State<RegisterPage> {
         }),
       );
 
-      final data = jsonDecode(response.body);
+      Map<String, dynamic>? data;
+      if (response.body.isNotEmpty) {
+        try {
+          data = jsonDecode(response.body);
+        } catch (_) {}
+      }
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 && data != null) {
         final token = data['token'];
 
         if (token == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("No token returned from server")),
-          );
+          _showToast("No token returned from server", isError: true);
           return;
         }
 
-        // Сохраняем токен в SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);
 
-        // Очистка инпутов
         usernameController.clear();
         emailController.clear();
         passwordController.clear();
 
-        // Переход на главную страницу (например, онбординг)
+        _showToast("Account created successfully!", isError: false);
+
         if (mounted) {
-          Future.microtask(
-            () => Navigator.pushReplacementNamed(context, '/onboard1'),
-          );
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, '/phone_verification');
+          });
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['error'] ?? 'Registration failed')),
-        );
+        String errorMsg = data?['error'] ?? 'Registration failed';
+
+        if (errorMsg.toLowerCase().contains('exists')) {
+          errorMsg = "This email is already registered";
+        } else if (errorMsg.toLowerCase().contains('password')) {
+          errorMsg = "Password is too weak";
+        }
+
+        _showToast(errorMsg, isError: true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      _showToast('Connection error. Please try again later.', isError: true);
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  void _showToast(String message, {bool isError = false}) {
+    final background = isError
+        ? Colors.redAccent.withOpacity(0.15)
+        : Colors.greenAccent.withOpacity(0.15);
+
+    final border = isError
+        ? Colors.redAccent.withOpacity(0.4)
+        : Colors.greenAccent.withOpacity(0.4);
+
+    toastification.show(
+      context: context,
+      type: isError ? ToastificationType.error : ToastificationType.success,
+      style: ToastificationStyle.flat, // 👈 самый лёгкий и универсальный
+      alignment: Alignment.bottomCenter,
+      autoCloseDuration: const Duration(seconds: 3),
+      showProgressBar: false,
+      closeButtonShowType: CloseButtonShowType.none,
+      dragToClose: true,
+      backgroundColor: background,
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: border, width: 1.2),
+      title: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.3,
+        ),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      boxShadow: [
+        BoxShadow(
+          color: isError
+              ? Colors.redAccent.withOpacity(0.25)
+              : Colors.greenAccent.withOpacity(0.25),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
   }
 
   @override
@@ -109,13 +166,15 @@ class _RegisterPageState extends State<RegisterPage> {
               TextField(
                 controller: usernameController,
                 style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'username',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigo),
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color.fromRGBO(63, 81, 181, 1),
+                    ),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
                   ),
                 ),
@@ -124,13 +183,13 @@ class _RegisterPageState extends State<RegisterPage> {
               TextField(
                 controller: emailController,
                 style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'email',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: const UnderlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigo),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
                   ),
                 ),
@@ -140,13 +199,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: passwordController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'password',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: const UnderlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey),
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigo),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.indigoAccent),
                   ),
                 ),

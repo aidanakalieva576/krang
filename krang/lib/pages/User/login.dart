@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,26 +16,25 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
-  String? _errorMessage;
 
-  // 🔹 ЛОГИН с сохранением token/role в SharedPreferences
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
+    // 🔹 Локальные проверки
     if (email.isEmpty || password.isEmpty) {
-      setState(() => _errorMessage = 'Please fill in all fields');
+      _showToast("Please fill in all fields", isError: true);
+      return;
+    }
+    if (!email.contains('@') || !email.contains('.')) {
+      _showToast("Please enter a valid email address", isError: true);
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      // если тестируешь на Android-эмуляторе — используй 10.0.2.2 вместо localhost
-      final url = Uri.parse('http://localhost:8080/api/auth/login');
+      final url = Uri.parse('http://10.0.2.2:8080/api/auth/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -44,48 +44,95 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('Login success: $data');
-
+        // Сохраняем токен/роль/почту в SharedPreferences (если есть)
         final role = data['role'] as String?;
         final token = data['token'] as String?;
 
-        // Сохраняем токен/роль/почту в SharedPreferences (если есть)
         final prefs = await SharedPreferences.getInstance();
         if (token != null) await prefs.setString('jwt_token', token);
         if (role != null) await prefs.setString('role', role);
         await prefs.setString('user_email', email);
-
         debugPrint('Token saved in SharedPreferences');
 
-        // Навигация в зависимости от роли
-        if (role == 'ADMIN') {
-          if (!mounted) return;
-          Navigator.pushReplacementNamed(context, '/admin_home');
-        } else {
-          if (!mounted) return;
-          Navigator.pushReplacementNamed(context, '/home');
+        _showToast("Login successful!", isError: false);
+
+        // Навигация
+        if (mounted) {
+          Future.delayed(const Duration(seconds: 1), () {
+            if (role == 'ADMIN') {
+              Navigator.pushReplacementNamed(context, '/admin_home');
+            } else {
+              Navigator.pushReplacementNamed(context, '/home');
+            }
+          });
         }
       } else {
-        debugPrint('Error: ${response.body}');
         String message = 'Invalid email or password';
         try {
           final body = jsonDecode(response.body);
-          if (body is Map && body['error'] != null)
+          if (body is Map && body['error'] != null) {
             message = body['error'].toString();
+          }
         } catch (_) {}
-        setState(() => _errorMessage = message);
+
+        if (message.toLowerCase().contains('user')) {
+          message = "User not found";
+        } else if (message.toLowerCase().contains('password')) {
+          message = "Incorrect password";
+        }
+
+        _showToast(message, isError: true);
       }
-    } catch (e) {
-      setState(() => _errorMessage = 'Connection error: $e');
+    } catch (_) {
+      _showToast("Connection error. Please try again later.", isError: true);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  // 🔔 Универсальный красивый toast
+  void _showToast(String message, {bool isError = false}) {
+    final background = isError
+        ? Colors.redAccent.withOpacity(0.15)
+        : Colors.greenAccent.withOpacity(0.15);
+
+    final border = isError
+        ? Colors.redAccent.withOpacity(0.4)
+        : Colors.greenAccent.withOpacity(0.4);
+
+    toastification.show(
+      context: context,
+      type: isError ? ToastificationType.error : ToastificationType.success,
+      style: ToastificationStyle.flat,
+      alignment: Alignment.bottomCenter,
+      autoCloseDuration: const Duration(seconds: 3),
+      showProgressBar: false,
+      closeButtonShowType: CloseButtonShowType.none,
+      dragToClose: true,
+      backgroundColor: background,
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: border, width: 1.2),
+      title: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.3,
+        ),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      boxShadow: [
+        BoxShadow(
+          color: isError
+              ? Colors.redAccent.withOpacity(0.25)
+              : Colors.greenAccent.withOpacity(0.25),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
   }
 
   @override
@@ -163,13 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
-              if (_errorMessage != null)
-                Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 13),
-                ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/registration');
