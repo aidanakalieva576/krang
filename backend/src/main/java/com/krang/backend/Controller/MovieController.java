@@ -32,7 +32,6 @@ public class MovieController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // 📥 Получить все фильмы (с названием категории, а не ID)
     @GetMapping
     public List<Map<String, Object>> getAllMovies() {
         String sql = """
@@ -56,7 +55,7 @@ public class MovieController {
         });
     }
 
-    // 🔒 Скрыть фильм
+
     @PutMapping("/{id}/hide")
     public ResponseEntity<?> hideMovie(@PathVariable Long id) {
         Optional<Movie> movieOpt = movieRepository.findById(id);
@@ -70,7 +69,7 @@ public class MovieController {
         return ResponseEntity.ok(movie);
     }
 
-    // 🔓 Показать фильм
+
     @PutMapping("/{id}/unhide")
     public ResponseEntity<?> unhideMovie(@PathVariable Long id) {
         Optional<Movie> movieOpt = movieRepository.findById(id);
@@ -87,7 +86,7 @@ public class MovieController {
    @PostMapping
 public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
     try {
-        // 🔹 Проверяем, что categoryId передан
+
         if (request.getCategoryId() == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Category ID is required"));
@@ -95,7 +94,7 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
 
         Long categoryId = request.getCategoryId();
 
-        // 🔹 Проверяем, что категория существует
+
         String sqlFindCategory = "SELECT COUNT(*) FROM categories WHERE id = ?";
         Integer exists = jdbcTemplate.queryForObject(sqlFindCategory, Integer.class, categoryId);
         if (exists == null || exists == 0) {
@@ -103,7 +102,6 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
                     .body(Map.of("error", "Category with id " + categoryId + " not found"));
         }
 
-        // 🔹 Добавляем фильм
         String sqlInsertMovie = """
             INSERT INTO movies (
                 title, description, release_year, type, category_id,
@@ -123,7 +121,7 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
             request.getTrailerUrl()
         );
 
-        // 🔹 Ответ
+
         HashMap<String, Object> response = new HashMap<>();
         response.put("id", movieId);
         response.put("category_id", categoryId);
@@ -138,7 +136,7 @@ public ResponseEntity<?> createMovie(@RequestBody CreateMovieRequest request) {
     }
 }
 
-// 🔹 Получить информацию о конкретном фильме
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getMovieById(@PathVariable Long id) {
         Optional<Movie> optionalMovie = movieRepository.findById(id);

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:krang/pages/User/phone_recovery_page.dart';
+import 'package:krang/pages/User/verify_code_page.dart';
+import 'package:krang/pages/User/watch_page.dart';
 import 'firebase_options.dart';
 
 // импорт всех нужных страниц
@@ -19,7 +22,6 @@ import 'pages/User/profile_page.dart';
 import 'pages/admin/movie_admin.dart';
 import 'pages/User/phone_verification_page.dart';
 import 'pages/admin/edit_movie.dart';
-import 'pages/admin/movie_admin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Routes Fixed',
       initialRoute: '/login',
+
       routes: {
         '/onboard1': (context) => OnboardPage(),
         '/onboard2': (context) => OnboardPageSecond(),
@@ -44,22 +47,41 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsPage(),
         '/support': (context) => SupportScreen(),
         '/continue_watching': (context) => ContinueWatchingScreen(),
-        '/movie_details': (context) => MovieDetailPage(),
         '/my_movies': (context) => MyMoviesPage(),
         '/profile': (context) => ProfilePage(),
         '/admin_home': (context) => const HomePageAdmin(),
         '/phone_verification': (context) => PhoneVerificationPage(),
+        '/phone_recovery': (context) => const PhoneRecoveryPage(),
+        '/verify_code': (context) => const VerifyCodePage(),
       },
 
-      // 🧠 Добавляем onGenerateRoute — чтобы можно было передавать movieId
       onGenerateRoute: (settings) {
         if (settings.name == '/edit') {
           final args = settings.arguments as Map<String, dynamic>?;
-          final movieId = args?['movieId'] ?? 0; // если не передан, будет 0
+          final movieId = args?['movieId'] ?? 0;
           return MaterialPageRoute(
             builder: (context) => EditMovieScreen(movieId: movieId),
           );
         }
+
+        if (settings.name == '/movie_details') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final movieId = args?['movieId'] ?? 0;
+          return MaterialPageRoute(
+            builder: (context) => MovieDetailPage(movieId: movieId),
+          );
+        }
+        if (settings.name == '/watch') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final movieId = args?['movieId'] ?? 0;
+          final title = args?['title'] ?? 'Unknown';
+          final videoUrl = args?['videoUrl'];
+          return MaterialPageRoute(
+            builder: (context) =>
+                WatchPage(movieId: movieId, title: title, videoUrl: videoUrl),
+          );
+        }
+
         return null;
       },
     );

@@ -10,7 +10,8 @@ class Category extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Column(                    // <-- было ListView, стало Column
+      child: Column(
+        // <-- было ListView, стало Column
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
           // Search(),  // убрал — появился на верхнем уровне CategoriesPage

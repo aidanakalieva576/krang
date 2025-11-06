@@ -107,7 +107,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
       return;
     }
 
-    final url = Uri.parse("http://192.168.123.35:8080/api/admin/movies");
+    final url = Uri.parse("http://172.20.10.4:8080/api/admin/movies");
 
     final body = json.encode({
       "title": nameController.text.trim(),
@@ -265,7 +265,10 @@ class _AddMoviePageState extends State<AddMoviePage> {
                               width: double.infinity,
                               height: 400,
                               child: ImageFiltered(
-                                imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 20,
+                                  sigmaY: 20,
+                                ),
                                 child: Image.file(
                                   selectedImage!,
                                   fit: BoxFit.cover,
@@ -295,7 +298,10 @@ class _AddMoviePageState extends State<AddMoviePage> {
                                 const SizedBox(height: 12),
                                 const Text(
                                   'Add photo',
-                                  style: TextStyle(color: Colors.white54, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -316,7 +322,6 @@ class _AddMoviePageState extends State<AddMoviePage> {
                         ],
                       ),
                     ),
-
 
                     const SizedBox(height: 40),
 

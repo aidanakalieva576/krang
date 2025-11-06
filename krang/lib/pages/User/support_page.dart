@@ -16,7 +16,7 @@ class _SupportScreenState extends State<SupportScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    // здесь можно добавить переходы между страницами
+
   }
 
   @override
@@ -25,7 +25,6 @@ class _SupportScreenState extends State<SupportScreen> {
       backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
         children: [
-          // Основное содержимое
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16).copyWith(bottom: 100),

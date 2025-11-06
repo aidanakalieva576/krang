@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ public class PublicMovieController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // ✅ 1. Popular Right Now
+    //  Popular Right Now
     @GetMapping("/popular")
     public ResponseEntity<List<Map<String, Object>>> getPopularMovies() {
         String sql = """
@@ -37,7 +38,7 @@ public class PublicMovieController {
         return ResponseEntity.ok(movies);
     }
 
-    // ✅ 2. Watching Right Now (PLAY события за последние 5 минут)
+    // Watching Right Now
     @GetMapping("/watching-now")
     public ResponseEntity<List<Map<String, Object>>> getWatchingNow() {
         String sql = """
@@ -54,7 +55,7 @@ public class PublicMovieController {
         return ResponseEntity.ok(movies);
     }
 
-    // ✅ 3. New Releases (фильмы добавленные за последние 30 дней)
+    // New Releases
     @GetMapping("/new")
     public ResponseEntity<List<Map<String, Object>>> getNewMovies() {
         String sql = """
@@ -70,7 +71,7 @@ public class PublicMovieController {
         return ResponseEntity.ok(movies);
     }
 
-    // ✅ 4. Coming Soon (фильмы без эпизодов)
+    //  Coming Soon
     @GetMapping("/coming-soon")
     public ResponseEntity<List<Map<String, Object>>> getComingSoonMovies() {
         String sql = """
@@ -86,4 +87,98 @@ public class PublicMovieController {
         List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(movies);
     }
+
+    @GetMapping("/{id}")
+public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id) {
+    String sql = """
+        SELECT 
+            m.id,
+            m.title,
+            m.description,
+            m.release_year,
+            m.director,
+            m.platform,
+            m.duration_seconds,
+            m.thumbnail_url,
+            m.video_url,
+            m.trailer_url,
+            c.name AS category
+        FROM movies m
+        LEFT JOIN categories c ON c.id = m.category_id
+        WHERE m.id = ?
+    """;
+
+    try {
+        Map<String, Object> movie = jdbcTemplate.queryForMap(sql, id);
+        return ResponseEntity.ok(movie);
+    } catch (Exception e) {
+        System.err.println("❌ Error fetching movie details: " + e.getMessage());
+        return ResponseEntity.status(404).body(Map.of("error", "Movie not found"));
+    }
+}
+
+
+
+// 🎬 Просмотр фильма или сериала
+@GetMapping("/{id}/watch")
+public ResponseEntity<?> getWatchData(@PathVariable Long id) {
+    try {
+
+        String movieSql = """
+            SELECT 
+                m.id, 
+                m.title, 
+                m.type, 
+                m.video_url,
+                c.name AS category
+            FROM movies m
+            LEFT JOIN categories c ON c.id = m.category_id
+            WHERE m.id = ?
+        """;
+
+        Map<String, Object> movie = jdbcTemplate.queryForMap(movieSql, id);
+        String type = (String) movie.get("type");
+
+
+        if ("SERIES".equalsIgnoreCase(type)) {
+            String episodesSql = """
+                SELECT 
+                    e.id,
+                    e.title,
+                    e.season_number,
+                    e.episode_number,
+                    e.video_url,
+                    e.duration_seconds
+                FROM episodes e
+                WHERE e.movie_id = ?
+                ORDER BY e.season_number, e.episode_number
+            """;
+
+            List<Map<String, Object>> episodes = jdbcTemplate.queryForList(episodesSql, id);
+            return ResponseEntity.ok(Map.of(
+                "id", movie.get("id"),
+                "title", movie.get("title"),
+                "type", type,
+                "category", movie.get("category"),
+                "episodes", episodes
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "id", movie.get("id"),
+            "title", movie.get("title"),
+            "type", type,
+            "category", movie.get("category"),
+            "video_url", movie.get("video_url")
+        ));
+
+    } catch (Exception e) {
+        System.err.println("❌ Error loading watch data: " + e.getMessage());
+        return ResponseEntity.status(404).body(Map.of("error", "Movie not found or no video available"));
+    }
+}
+
+
+
+
 }

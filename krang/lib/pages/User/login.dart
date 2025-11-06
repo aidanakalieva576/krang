@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final url = Uri.parse('http://192.168.123.35:8080/api/auth/login');
+      final url = Uri.parse('http://172.20.10.4:8080/api/auth/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -219,6 +219,19 @@ class _LoginPageState extends State<LoginPage> {
                   'I do not have an account',
                   style: TextStyle(
                     color: Colors.grey,
+                    fontSize: 13,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/phone_recovery');
+                },
+                child: const Text(
+                  'Forgot your account? Recover via phone',
+                  style: TextStyle(
+                    color: Colors.lightBlueAccent,
                     fontSize: 13,
                     decoration: TextDecoration.underline,
                   ),

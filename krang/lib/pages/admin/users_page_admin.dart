@@ -47,7 +47,7 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
       }
 
       final response = await http.get(
-        Uri.parse("http://192.168.123.35:8080/api/admin/users"),
+        Uri.parse("http://172.20.10.4:8080/api/admin/users"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -108,7 +108,7 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
 
     try {
       final response = await http.delete(
-        Uri.parse("http://192.168.123.35:8080/api/admin/delete"),
+        Uri.parse("http://172.20.10.4:8080/api/admin/delete"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -148,119 +148,122 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
           Expanded(
             child: isLoading
                 ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            )
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
                 : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 100, top: 10),
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                final bool isActive = user["is_active"] == true;
+                    padding: const EdgeInsets.only(bottom: 100, top: 10),
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      final bool isActive = user["is_active"] == true;
 
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? const Color(0x80414553)
-                        : const Color(0x402D2F3E),
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: Stack(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 74,
-                            height: 74,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF414553),
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: user["avatar_url"] != null
-                                ? ClipOval(
-                              child: Image.network(
-                                user["avatar_url"],
-                                width: 74,
-                                height: 74,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) =>
-                                    Image.asset(
-                                      'assets/icons_admin/user.png',
-                                      width: 46,
-                                      height: 46,
-                                    ),
-                              ),
-                            )
-                                : Image.asset(
-                              'assets/icons_admin/user.png',
-                              width: 46,
-                              height: 46,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? const Color(0x80414553)
+                              : const Color(0x402D2F3E),
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        child: Stack(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  user["username"] ?? "Unknown",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                Container(
+                                  width: 74,
+                                  height: 74,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF414553),
+                                    shape: BoxShape.circle,
                                   ),
+                                  alignment: Alignment.center,
+                                  child: user["avatar_url"] != null
+                                      ? ClipOval(
+                                          child: Image.network(
+                                            user["avatar_url"],
+                                            width: 74,
+                                            height: 74,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Image.asset(
+                                                  'assets/icons_admin/user.png',
+                                                  width: 46,
+                                                  height: 46,
+                                                ),
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/icons_admin/user.png',
+                                          width: 46,
+                                          height: 46,
+                                        ),
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  user["email"] ?? "no email",
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+                                const SizedBox(width: 15),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        user["username"] ?? "Unknown",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        user["email"] ?? "no email",
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        getRandomFeedback(),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 10,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  getRandomFeedback(),
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 10,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      // Иконка удаления
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () => deleteUser(user["email"]),
-                          child: Image.asset(
-                            'assets/icons_admin/delete_user.png',
-                            height: 28,
-                            width: 28,
-                            color: Colors.white70,
-                          ),
+                            // Иконка удаления
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => deleteUser(user["email"]),
+                                child: Image.asset(
+                                  'assets/icons_admin/delete_user.png',
+                                  height: 28,
+                                  width: 28,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
           const NavbarAdmin(selectedIndex: 1),
         ],

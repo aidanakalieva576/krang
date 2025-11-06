@@ -18,18 +18,12 @@ class _SearchState extends State<Search> {
       ),
       child: const TextField(
         textAlignVertical: TextAlignVertical.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ),
+        style: TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           isCollapsed: true,
           contentPadding: EdgeInsets.symmetric(vertical: 10),
           hintText: "Search movies, series, actors...",
-          hintStyle: TextStyle(
-            color: const Color(0xFF5F616F),
-            fontSize: 13,
-          ),
+          hintStyle: TextStyle(color: const Color(0xFF5F616F), fontSize: 13),
           border: InputBorder.none,
           prefixIcon: Padding(
             padding: EdgeInsets.only(left: 10, right: 6),

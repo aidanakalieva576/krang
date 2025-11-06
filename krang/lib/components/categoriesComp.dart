@@ -26,16 +26,13 @@ class _CategorySectionState extends State<CategorySection> {
         children: [
           ...List.generate(
             categories.length,
-                (index) => GestureDetector(
+            (index) => GestureDetector(
               onTap: () {
                 setState(() {
                   _selectedIndex = index;
                 });
               },
-              child: _buildCategory(
-                categories[index],
-                _selectedIndex == index,
-              ),
+              child: _buildCategory(categories[index], _selectedIndex == index),
             ),
           ),
           const SizedBox(width: 16),
@@ -51,9 +48,7 @@ class _CategorySectionState extends State<CategorySection> {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: active
-            ? const Color(0xFF5D648B)
-            : const Color(0xFF343641),
+        color: active ? const Color(0xFF5D648B) : const Color(0xFF343641),
         borderRadius: BorderRadius.circular(20),
       ),
       alignment: Alignment.center,

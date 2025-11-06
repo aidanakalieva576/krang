@@ -21,68 +21,68 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🎬 Название
+    //Название
     @Column(nullable = false, length = 255)
     private String title;
 
-    // 📝 Описание
+    //Описание
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // 📅 Год выхода
+    // Год выхода
     @Column(name = "release_year")
     private Integer releaseYear;
 
-    // 📺 Тип (MOVIE / SERIES)
+    // MOVIE / SERIES
     @Column(nullable = false, length = 20)
     private String type;
 
-    // 🎭 Категория (жанр)
+    //Категория
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // ⏱️ Длительность (в секундах)
+    //Длительность cек
     @Column(name = "duration_seconds")
     private Integer durationSeconds;
 
-    // 🖼️ URL миниатюры (Cloudinary)
+    //Cloudinary
     @Column(name = "thumbnail_url", length = 1024)
     private String thumbnailUrl;
 
-    // 🎥 URL видео (если есть)
+    //URL видео
     @Column(name = "video_url", length = 1024)
     private String videoUrl;
 
-    // 🎞️ Трейлер
+    //Трейлер
     @Column(name = "trailer_url", length = 255)
     private String trailerUrl;
 
-    // 👀 Скрыт ли фильм
+    //Скрыт ли
     @Column(name = "is_hidden", nullable = false)
     private boolean isHidden = false;
 
-    // 🎬 Режиссёр
+    //Режиссёр
     @Column(length = 255)
     private String director;
 
-    // 📺 Платформа (Netflix, HBO и т.д.)
+    // Платформ
     @Column(length = 255)
     private String platform;
 
-    // 👤 Создан пользователем
+    // Создан
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    // 📆 Дата создания / обновления
+    //Дата создания/обновления
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
-    // === GETTERS / SETTERS ===
+
 
     public Long getId() { return id; }
 

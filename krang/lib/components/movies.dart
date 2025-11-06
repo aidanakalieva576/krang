@@ -16,7 +16,7 @@ class _MovieSectionState extends State<MovieSection> {
 
   // 🔹 Определяем URL для конкретного раздела
   String _getApiUrl() {
-    final base = 'http://192.168.123.35:8080/api/public/movies';
+    final base = 'http://172.20.10.4:8080/api/public/movies';
 
     switch (widget.title.toLowerCase()) {
       case 'popular right now':
@@ -67,7 +67,7 @@ class _MovieSectionState extends State<MovieSection> {
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              '❌ Error: ${snapshot.error}',
+              'Error: ${snapshot.error}',
               style: const TextStyle(color: Colors.red),
             ),
           );
@@ -111,7 +111,11 @@ class _MovieSectionState extends State<MovieSection> {
                   final movie = movies[index];
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/movie_details');
+                      Navigator.pushNamed(
+                        context,
+                        '/movie_details',
+                        arguments: {'movieId': movie['id']},
+                      );
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),

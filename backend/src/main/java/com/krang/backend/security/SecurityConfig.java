@@ -53,31 +53,34 @@ public CorsConfigurationSource corsConfigurationSource() {
 }
 
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.info("✅ SecurityConfig initialized — admin/register should be public");
+   @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    log.info("✅ SecurityConfig initialized — admin/register should be public");
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/api/admin/register",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/api/public/movies/**",
-                    "api/users/**"
-                ).permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers.frameOptions().disable());
+    http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/api/auth/**",
+                "/api/admin/register",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/api/public/movies/**",
+                "/api/users/**",         // ✅ добавлен слэш
+                "/api/recovery/**",
+                "/api/phone/**"   // ✅ теперь разрешён весь recovery
+            ).permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .headers(headers -> headers.frameOptions().disable());
 
-        return http.build();
-    }
+    return http.build();
+}
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

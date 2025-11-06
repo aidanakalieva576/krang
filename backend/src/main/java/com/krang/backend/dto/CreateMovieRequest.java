@@ -5,7 +5,7 @@ public class CreateMovieRequest {
     private String description;
     private Integer releaseYear;
     private String type;
-    private Long categoryId; // ✅ теперь число, а не текст
+    private Long categoryId;
     private String thumbnailUrl;
     private String videoUrl;
     private String trailerUrl;

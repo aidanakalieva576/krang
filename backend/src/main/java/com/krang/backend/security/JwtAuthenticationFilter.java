@@ -30,67 +30,79 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-protected void doFilterInternal(HttpServletRequest request,
-                                HttpServletResponse response,
-                                FilterChain filterChain)
-        throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
-    final String authHeader = request.getHeader("Authorization");
+        String path = request.getRequestURI();
 
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        System.out.println("⛔ No Authorization header or not Bearer format");
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    String token = authHeader.substring(7);
-    String username = jwtUtil.extractUsername(token);
-    String role = jwtUtil.extractRole(token);
-
-    System.out.println("🔹 TOKEN PARSED → username=" + username + ", role=" + role);
-
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        var user = userRepository.findByUsername(username).orElse(null);
-
-        if (user != null && jwtUtil.validateToken(token)) {
-            // нормализуем роль
-            var grantedRole = role.toUpperCase();
-
-            // 🔥 если роль не начинается с "ROLE_", добавим, чтобы проверить гипотезу
-            if (!grantedRole.startsWith("ROLE_")) {
-                System.out.println("⚙️  Role doesn't start with ROLE_ → adding prefix manually");
-                grantedRole = "ROLE_" + grantedRole;
-            }
-
-            var authorities = List.of(new SimpleGrantedAuthority(grantedRole));
-
-            System.out.println("✅ Setting authentication for user=" + username);
-            System.out.println("   Granted authorities = " + authorities);
-
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    new User(user.getUsername(), user.getPasswordHash(), authorities),
-                    null,
-                    authorities
-            );
-
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        } else {
-            System.out.println("❌ Token invalid or user not found");
+        // ✅ Пропускаем без токена публичные маршруты
+        if (path.startsWith("/api/auth/")
+                || path.startsWith("/api/admin/register")
+                || path.startsWith("/api/recovery/")
+                || path.startsWith("/api/phone/")
+                || path.startsWith("/swagger-ui/")
+                || path.startsWith("/v3/api-docs/")
+                || path.startsWith("/api/public/")
+                || path.startsWith("/h2-console/")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        final String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("⛔ No Authorization header or not Bearer format");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authHeader.substring(7);
+        String username = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
+
+        System.out.println("🔹 TOKEN PARSED → username=" + username + ", role=" + role);
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            var user = userRepository.findByUsername(username).orElse(null);
+
+            if (user != null && jwtUtil.validateToken(token)) {
+                // нормализуем роль
+                var grantedRole = role.toUpperCase();
+
+                if (!grantedRole.startsWith("ROLE_")) {
+                    System.out.println("⚙️  Role doesn't start with ROLE_ → adding prefix manually");
+                    grantedRole = "ROLE_" + grantedRole;
+                }
+
+                var authorities = List.of(new SimpleGrantedAuthority(grantedRole));
+
+                System.out.println("✅ Setting authentication for user=" + username);
+                System.out.println("   Granted authorities = " + authorities);
+
+                var authToken = new UsernamePasswordAuthenticationToken(
+                        new User(user.getUsername(), user.getPasswordHash(), authorities),
+                        null,
+                        authorities
+                );
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("❌ Token invalid or user not found");
+            }
+        }
+
+        var contextAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (contextAuth != null) {
+            System.out.println("🔍 CONTEXT AUTH TYPE: " + contextAuth.getClass().getSimpleName());
+            System.out.println("🔍 CONTEXT PRINCIPAL: " + contextAuth.getPrincipal());
+            System.out.println("🔍 CONTEXT AUTHORITIES: " + contextAuth.getAuthorities());
+        } else {
+            System.out.println("⚠️ CONTEXT AUTH IS NULL");
+        }
+
+        filterChain.doFilter(request, response);
     }
-
-    // После установки аутентификации выводим, что реально в контексте
-    var contextAuth = SecurityContextHolder.getContext().getAuthentication();
-    if (contextAuth != null) {
-        System.out.println("🔍 CONTEXT AUTH TYPE: " + contextAuth.getClass().getSimpleName());
-        System.out.println("🔍 CONTEXT PRINCIPAL: " + contextAuth.getPrincipal());
-        System.out.println("🔍 CONTEXT AUTHORITIES: " + contextAuth.getAuthorities());
-    } else {
-        System.out.println("⚠️ CONTEXT AUTH IS NULL");
-    }
-
-    filterChain.doFilter(request, response);
-}
-
 }

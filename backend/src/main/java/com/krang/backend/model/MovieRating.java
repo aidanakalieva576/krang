@@ -24,21 +24,21 @@ public class MovieRating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔹 Связь с пользователем
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 🔹 Связь с фильмом
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
-    // 🔹 Рейтинг (1–10)
+
     @Column(nullable = false)
     private Short rating;
 
-    // 🔹 Отзыв (опционально)
+
     @Column(columnDefinition = "TEXT")
     private String review;
 
@@ -48,7 +48,6 @@ public class MovieRating {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
-    // === GETTERS / SETTERS ===
     public Long getId() { return id; }
 
     public User getUser() { return user; }

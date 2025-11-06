@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class ProfileMenuItem extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
-  final Color? backgroundColor; // ✅ Добавили параметр
+  final Color? backgroundColor; 
 
   const ProfileMenuItem({
     super.key,
     required this.title,
     required this.onTap,
-    this.backgroundColor, // ✅ теперь можно передавать цвет
+    this.backgroundColor, 
   });
 
   @override
@@ -19,7 +19,7 @@ class ProfileMenuItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          color: backgroundColor ?? const Color(0xFF1C1C1C), // серый по умолчанию
+          color: backgroundColor ?? const Color(0xFF1C1C1C), 
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

@@ -37,23 +37,22 @@ public class AuthRestController {
         this.jwtUtil = jwtUtil;
     }
 
-    // 🔹 Регистрация пользователя с автоматической генерацией JWT
+    // Регистрация с JWT
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
         try {
-            // Проверим, существует ли уже пользователь
+
             if (userRepository.findByEmail(req.getEmail()).isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User with this email already exists"));
             }
 
-            // Регистрируем
+
             User created = userService.register(req);
 
-            // Генерируем JWT токен
+
             String token = jwtUtil.generateToken(created.getUsername(), created.getRole());
 
 
-            // Возвращаем пользователя + токен
             return ResponseEntity.status(201).body(
                 Map.of(
                     "id", created.getId(),
@@ -72,7 +71,7 @@ public class AuthRestController {
         }
     }
 
-    // 🔹 Логин с генерацией JWT токена
+    // Логин с JWT
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         String email = request.getEmail();
@@ -81,7 +80,7 @@ public class AuthRestController {
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
-        email = email.trim().toLowerCase(); // 👈 добавь это
+        email = email.trim().toLowerCase();
 
         var user = userRepository.findByEmail(email).orElse(null);
 

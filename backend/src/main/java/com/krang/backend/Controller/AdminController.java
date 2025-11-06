@@ -47,7 +47,7 @@ public class AdminController {
     private final MovieRatingRepository movieRatingRepository;
     private final Cloudinary cloudinary;
 
-    // 🧑‍💼 Создание нового админа
+
     @PostMapping("/register")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterRequest req) {
         User created = adminService.createAdmin(req);
@@ -62,7 +62,7 @@ public class AdminController {
         );
     }
 
-    // 👥 Получение всех обычных пользователей
+
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
         List<Map<String, Object>> users = userRepository.findByRole("USER").stream()
@@ -79,7 +79,7 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
-    // 🗑️ Удаление пользователя по email
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUserByEmail(@RequestBody Map<String, String> body) {
         String email = body.get("email");
@@ -100,7 +100,7 @@ public class AdminController {
         }
     }
 
-    // 🎬 Добавление фильма/сериала
+
     @PostMapping("/add_movie")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addMovie(
@@ -116,11 +116,11 @@ public class AdminController {
             Authentication authentication
     ) {
         try {
-            // ✅ 1. Загрузка изображения в Cloudinary
+            //  Cloudinary
             Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
             String imageUrl = uploadResult.get("secure_url").toString();
 
-            // ✅ 2. Получаем текущего админа
+            // Получаем  админа
             String username = authentication.getName();
             Optional<User> userOpt = userRepository.findByUsername(username);
             if (userOpt.isEmpty()) {
@@ -128,13 +128,13 @@ public class AdminController {
             }
             User user = userOpt.get();
 
-            // ✅ 3. Проверяем категорию
+
             Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
             if (categoryOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid category ID"));
             }
 
-            // ✅ 4. Создаём Movie
+
             Movie movie = new Movie();
             movie.setTitle(title);
             movie.setDescription(description);
@@ -150,7 +150,7 @@ public class AdminController {
 
             movieRepository.save(movie);
 
-            // ✅ 5. Добавляем рейтинг
+
             if (rating >= 1 && rating <= 10) {
                 MovieRating movieRating = new MovieRating();
                 movieRating.setMovie(movie);
@@ -159,7 +159,7 @@ public class AdminController {
                 movieRatingRepository.save(movieRating);
             }
 
-            // ✅ 6. Возвращаем ответ
+
             return ResponseEntity.ok(Map.of(
                     "message", "Movie added successfully",
                     "movie_id", movie.getId(),

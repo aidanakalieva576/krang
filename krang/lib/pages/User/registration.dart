@@ -39,7 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => isLoading = true);
 
     try {
-      final url = Uri.parse('http://192.168.123.35:8080/api/auth/register');
+      final url = Uri.parse('http://172.20.10.4:8080/api/auth/register');
 
       final response = await http.post(
         url,

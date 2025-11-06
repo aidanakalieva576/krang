@@ -43,9 +43,7 @@ public class UserController {
     @Autowired
     private UserService userService; // ✅ добавь это
 
-    // =====================================================
-    // 🔹 1. Получить профиль текущего пользователя
-    // =====================================================
+
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
         var user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
@@ -57,16 +55,13 @@ public class UserController {
         data.put("id", user.getId());
         data.put("username", user.getUsername());
         data.put("email", user.getEmail());
-        data.put("avatar", user.getAvatarUrl()); // даже если null — не вылетит
+        data.put("avatar", user.getAvatarUrl());
         data.put("role", user.getRole());
 
         return ResponseEntity.ok(data);
     }
 
 
-    // =====================================================
-    // 🔹 2. Обновить данные пользователя (email, username, пароль, аватар)
-    // =====================================================
 
 @PutMapping("/edit")
 public ResponseEntity<?> editProfile(
@@ -125,11 +120,8 @@ public ResponseEntity<?> editProfile(
             userRepository.save(user);
         }
 
-        // --- генерируем новый токен (если нужно) ---
-        // Убедись, что метод jwtUtil.generateToken существует с такой сигнатурой.
         String newToken = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
-        // --- Формируем ответ безопасно (HashMap допускает null значения) ---
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Profile updated successfully");
         response.put("token", newToken);
@@ -148,10 +140,6 @@ public ResponseEntity<?> editProfile(
 }
 
 
-
-    // =====================================================
-    // 🔹 3. Удалить аккаунт
-    // =====================================================
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String token) {
         try {
