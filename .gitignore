@@ -1,0 +1,24 @@
+# --- Игнорировать всё ---
+*
+*backend/src/main/resources/application.properties
+
+# --- Разрешить фронт krang ---
+!krang/
+!krang/**
+
+# --- Разрешить backend ---
+!backend/
+!backend/**
+!backend/.gitignore
+
+# --- Разрешить .gitignore ---
+!.gitignore
+
+# --- Общие правила ---
+.idea/
+.vscode/
+build/
+.DS_Store
+*.iml
+*.ipr
+*.iws

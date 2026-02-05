@@ -1,0 +1,60 @@
+name: krang
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.3.0
+  image_picker: ^1.1.1
+  cupertino_icons: ^1.0.8
+  http: ^1.2.0
+  video_player: ^2.9.1
+  google_fonts: ^6.2.1
+
+  toastification: ^3.0.3
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  
+flutter:
+  assets:
+    - assets/icons_user/logo.png
+    - assets/icons_user/Arrow.png
+    - assets/icons_user/Search.png
+    - assets/icons_user/ITonya.png
+    - assets/icons_user/star.png
+    - assets/icons_user/empty_star.png
+    - assets/icons_user/favourite.png
+    - assets/icons_user/avatar.png
+    - assets/icons_user/brooklyn_movie.png
+    - assets/icons_user/desperate_housewives.png
+    - assets/icons_user/arcane.png
+    - assets/icons_user/kpop_demon_hunters.png
+    - assets/icons_user/oitnb.png
+    - assets/icons_user/the_lovely_bones.png
+    - assets/icons_user/collection.png
+    - assets/icons_user/barbie.png
+    - assets/icons_user/chainsawman.png
+    - assets/icons_user/heads_of_state.png
+    - assets/icons_user/ifrit.png
+    - assets/icons_user/the_fast_and_the_furious.png
+    - assets/icons_user/the_last_of_us.png
+    - assets/icons_user/the_smashing_machine.png
+    - assets/icons_user/nav_fav.png
+    - assets/icons_user/nav_user.png
+    - assets/icons_user/home.png
+    - assets/icons_user/nav_search.png
+    - assets/icons_user/lego_movie.jpeg 
+    - assets/icons_admin/
+    - assets/icons_user/
+  uses-material-design: true
+
