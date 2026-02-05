@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:krang/pages/User/phone_recovery_page.dart';
 import 'package:krang/pages/User/verify_code_page.dart';
 import 'package:krang/pages/User/watch_page.dart';
-import 'firebase_options.dart';
 
 // импорт всех нужных страниц
 import 'pages/User/registration.dart';
@@ -22,10 +21,11 @@ import 'pages/User/profile_page.dart';
 import 'pages/admin/movie_admin.dart';
 import 'pages/User/phone_verification_page.dart';
 import 'pages/admin/edit_movie.dart';
+import 'pages/User/reset_password.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
         '/phone_verification': (context) => PhoneVerificationPage(),
         '/phone_recovery': (context) => const PhoneRecoveryPage(),
         '/verify_code': (context) => const VerifyCodePage(),
+        '/reset_password': (context) => const ResetPasswordPage(),
       },
 
       onGenerateRoute: (settings) {

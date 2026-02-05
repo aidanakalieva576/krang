@@ -39,6 +39,7 @@ class _PhoneRecoveryPageState extends State<PhoneRecoveryPage> {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final maskedPhone = data['maskedPhone'] ?? 'number';
+        final phone = data['phone'];
 
         _showSnack('Код отправлен на $maskedPhone');
 
@@ -46,7 +47,10 @@ class _PhoneRecoveryPageState extends State<PhoneRecoveryPage> {
         Navigator.pushNamed(
           context,
           '/verify_code',
-          arguments: {'email': email},
+          arguments: {'email': email, 'phone': phone},
+        );
+        debugPrint(
+          "Navigating to /verify_code with email='$email' and phone='$phone', maskedPhone='$maskedPhone'",
         );
       } else {
         final data = jsonDecode(res.body);

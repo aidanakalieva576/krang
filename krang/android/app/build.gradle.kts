@@ -40,11 +40,11 @@ flutter {
 }
 
 dependencies {
-    // ✅ Firebase Authentication для входа по телефону
-    implementation("com.google.firebase:firebase-auth:22.3.1")
+    // // ✅ Firebase Authentication для входа по телефону
+    // implementation("com.google.firebase:firebase-auth:22.3.1")
 
-    // (опционально, если потом понадобится Firestore)
-    implementation("com.google.firebase:firebase-firestore:25.0.0")
+    // // (опционально, если потом понадобится Firestore)
+    // implementation("com.google.firebase:firebase-firestore:25.0.0")
 }
 
-apply(plugin = "com.google.gms.google-services")
+// apply(plugin = "com.google.gms.google-services")
