@@ -19,7 +19,7 @@ class _MyMoviesPageState extends State<MyMoviesPage> {
   List<Map<String, dynamic>> _favorites = [];
   bool _isLoading = true;
 
-  static const String _baseUrl = 'http://172.20.10.4:8080';
+  static const String _baseUrl = 'http://localhost:8080';
 
   // если у твоего navbar высота другая — поменяй
   static const double _navBarHeight = 92;

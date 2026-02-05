@@ -24,7 +24,7 @@ class _MovieSectionState extends State<MovieSection> {
 
   // ✅ собираем URL с учетом фильтра
   String _getApiUrl() {
-    final base = 'http://172.20.10.4:8080/api/public/movies';
+    final base = 'http://localhost:8080/api/public/movies';
 
     String endpoint;
     switch (widget.title.toLowerCase()) {

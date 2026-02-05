@@ -38,7 +38,7 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
         return;
       }
 
-      final url = Uri.parse('http://172.20.10.4:8080/api/phone/send-code');
+      final url = Uri.parse('http://localhost:8080/api/phone/send-code');
       final response = await http.post(
         url,
         headers: {
@@ -90,7 +90,7 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
         return;
       }
 
-      final url = Uri.parse('http://172.20.10.4:8080/api/phone/verify-code');
+      final url = Uri.parse('http://localhost:8080/api/phone/verify-code');
       final response = await http.post(
         url,
         headers: {
