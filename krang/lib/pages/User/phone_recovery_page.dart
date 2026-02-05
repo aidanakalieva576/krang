@@ -31,11 +31,10 @@ class _PhoneRecoveryPageState extends State<PhoneRecoveryPage> {
 
     try {
       final res = await http.post(
-        Uri.parse('http://localhost:8080/api/recovery/email'),
+        Uri.parse('http://172.20.10.4:8080/api/recovery/email'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email}),
       );
-
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);

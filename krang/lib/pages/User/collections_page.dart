@@ -20,6 +20,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   @override
   Widget build(BuildContext context) {
     const backgroundColor = Color(0xFF1A1A1A);
+    String _selectedType = 'All';
 
     return Scaffold(
       backgroundColor: backgroundColor,

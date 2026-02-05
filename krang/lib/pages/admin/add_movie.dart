@@ -107,7 +107,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
       return;
     }
 
-    final url = Uri.parse('http://localhost:8080/api/admin/movies');
+    final url = Uri.parse("http://172.20.10.4:8080/api/admin/movies");
 
     final body = json.encode({
       "title": nameController.text.trim(),

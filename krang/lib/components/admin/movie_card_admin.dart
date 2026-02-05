@@ -35,9 +35,8 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
   /// 🛰️ Обновляем флаг is_hidden в БД
   Future<void> _toggleHidden() async {
     final endpoint = isHidden ? 'unhide' : 'hide';
-
     final url = Uri.parse(
-      'http://localhost:8080/api/admin/movies/${widget.item.id}/$endpoint',
+      'http://172.20.10.4:8080/api/admin/movies/${widget.item.id}/$endpoint',
     );
 
     try {

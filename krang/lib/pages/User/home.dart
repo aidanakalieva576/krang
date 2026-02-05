@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  String _selectedType = 'All';
 
   void _onItemTapped(int index) {
     setState(() {
@@ -72,21 +73,23 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 32),
 
                   // Компонент сам должен рисовать свой заголовок — удалил ручной заголовок
-                  const CategorySection(),
+                  CategorySection(
+                    selected: _selectedType,
+                    onSelected: (v) => setState(() => _selectedType = v),
+                  ),
+
                   const SizedBox(height: 32),
 
-                  // MovieSection, предположительно рисует заголовок внутри себя
-                  const MovieSection(title: 'Popular Right Now'),
-                  const SizedBox(height: 32),
-
-                  const MovieSection(title: 'Watching right now'),
-                  const SizedBox(height: 32),
-
-                  const MovieSection(title: 'New'),
-                  const SizedBox(height: 32),
-
-                  const MovieSection(title: 'Coming soon'),
-                  const SizedBox(height: 32),
+                  MovieSection(
+                    title: 'Popular Right Now',
+                    typeFilter: _selectedType,
+                  ),
+                  MovieSection(
+                    title: 'Watching right now',
+                    typeFilter: _selectedType,
+                  ),
+                  MovieSection(title: 'New', typeFilter: _selectedType),
+                  MovieSection(title: 'Coming soon', typeFilter: _selectedType),
 
                   // ActorSection тоже, вероятно, содержит заголовок внутри
                   const ActorSection(),

@@ -48,7 +48,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/admin/movies/${widget.movieId}'),
+        Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

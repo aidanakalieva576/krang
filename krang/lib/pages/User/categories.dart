@@ -13,6 +13,7 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   int _selectedIndex = 1;
+  String _selectedType = 'All';
 
   void _onItemTapped(int index) {
     setState(() {
@@ -31,7 +32,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               padding: const EdgeInsets.all(16),
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 120),
-                children: const [
+                children: [
                   // 🔍 Поиск
                   Search(),
                   SizedBox(height: 28),
@@ -49,17 +50,26 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     ),
                   ),
                   SizedBox(height: 12),
-                  CategorySection(),
+                  CategorySection(
+                    selected: _selectedType,
+                    onSelected: (v) => setState(() => _selectedType = v),
+                  ),
 
                   // 🎬 Фильмы
                   SizedBox(height: 32),
-                  MovieSection(title: 'Popular Right Now'),
+                  MovieSection(
+                    title: 'Popular Right Now',
+                    typeFilter: _selectedType,
+                  ),
                   SizedBox(height: 32),
-                  MovieSection(title: 'Watching right now'),
+                  MovieSection(
+                    title: 'Watching right now',
+                    typeFilter: _selectedType,
+                  ),
                   SizedBox(height: 32),
-                  MovieSection(title: 'New'),
+                  MovieSection(title: 'New', typeFilter: _selectedType),
                   SizedBox(height: 32),
-                  MovieSection(title: 'Coming soon'),
+                  MovieSection(title: 'Coming soon', typeFilter: _selectedType),
                 ],
               ),
             ),

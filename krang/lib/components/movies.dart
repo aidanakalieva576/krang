@@ -5,7 +5,15 @@ import 'package:http/http.dart' as http;
 
 class MovieSection extends StatefulWidget {
   final String title;
-  const MovieSection({super.key, required this.title});
+
+  // ✅ ДОБАВИЛИ: фильтр типа ('All' | 'MOVIE' | 'SERIES')
+  final String typeFilter;
+
+  const MovieSection({
+    super.key,
+    required this.title,
+    required this.typeFilter,
+  });
 
   @override
   State<MovieSection> createState() => _MovieSectionState();
@@ -14,33 +22,55 @@ class MovieSection extends StatefulWidget {
 class _MovieSectionState extends State<MovieSection> {
   Future<List<Map<String, dynamic>>>? _moviesFuture;
 
-  // 🔹 Определяем URL для конкретного раздела
+  // ✅ собираем URL с учетом фильтра
   String _getApiUrl() {
-    final base = 'http://localhost:8080/api/public/movies';
+    final base = 'http://172.20.10.4:8080/api/public/movies';
 
+    String endpoint;
     switch (widget.title.toLowerCase()) {
       case 'popular right now':
-        return '$base/popular';
+        endpoint = 'popular';
+        break;
       case 'watching right now':
-        return '$base/watching-now';
+        endpoint = 'watching-now';
+        break;
       case 'new':
-        return '$base/new';
+        endpoint = 'new';
+        break;
       case 'coming soon':
-        return '$base/coming-soon';
+        endpoint = 'coming-soon';
+        break;
       default:
-        return '$base';
+        endpoint = '';
+        break;
     }
+
+    final type = widget.typeFilter;
+    final typeParam = (type == 'All' || type.isEmpty) ? '' : '?type=$type';
+
+    if (endpoint.isEmpty) return '$base$typeParam';
+    return '$base/$endpoint$typeParam';
   }
 
   Future<List<Map<String, dynamic>>> fetchMovies() async {
-    final url = Uri.parse(_getApiUrl());
+    final urlStr = _getApiUrl();
+    debugPrint(
+      "🎬 MovieSection '${widget.title}' type='${widget.typeFilter}' -> GET $urlStr",
+    );
+
+    final url = Uri.parse(urlStr);
     final response = await http.get(url);
+
+    debugPrint("🎬 status=${response.statusCode} body=${response.body}");
 
     if (response.statusCode == 200) {
       final List data = json.decode(response.body);
+      debugPrint("🎬 moviesCount=${data.length}");
       return data.cast<Map<String, dynamic>>();
     } else {
-      throw Exception('Failed to load movies: ${response.statusCode}');
+      throw Exception(
+        'Failed to load movies: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
@@ -48,6 +78,18 @@ class _MovieSectionState extends State<MovieSection> {
   void initState() {
     super.initState();
     _moviesFuture = fetchMovies();
+  }
+
+  // ✅ ВАЖНО: если фильтр изменился — перезагружаем
+  @override
+  void didUpdateWidget(covariant MovieSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.typeFilter != widget.typeFilter) {
+      setState(() {
+        _moviesFuture = fetchMovies();
+      });
+    }
   }
 
   @override

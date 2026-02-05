@@ -41,13 +41,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
     try {
       final res = await http.post(
-        Uri.parse('http://localhost:8080/api/recovery/reset-password'),
+        Uri.parse('http://172.20.10.4:8080/api/recovery/reset-password'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'code': code,
-          'newPassword': p1,
-        }),
+        body: jsonEncode({'email': email, 'code': code, 'newPassword': p1}),
       );
       debugPrint('Reset password response: ${email}, ${code}, ${p1}');
 

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,73 +21,134 @@ public class PublicMovieController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @GetMapping
+public ResponseEntity<List<Map<String, Object>>> getAllMovies(
+        @RequestParam(required = false) String type
+) {
+    String sql = """
+        SELECT m.id, m.title, c.name AS category, m.thumbnail_url
+        FROM movies m
+        JOIN categories c ON c.id = m.category_id
+        WHERE 1=1
+    """;
+
+    List<Object> params = new java.util.ArrayList<>();
+
+    if (type != null && !type.isBlank() && !"All".equalsIgnoreCase(type)) {
+        sql += " AND UPPER(m.type) = ? ";
+        params.add(type.trim().toUpperCase());
+    }
+
+    sql += " ORDER BY m.created_at DESC LIMIT 50 ";
+
+    return ResponseEntity.ok(jdbcTemplate.queryForList(sql, params.toArray()));
+}
+
+
     //  Popular Right Now
     @GetMapping("/popular")
-    public ResponseEntity<List<Map<String, Object>>> getPopularMovies() {
-        String sql = """
-            SELECT m.id, m.title, c.name AS category, m.thumbnail_url
-            FROM movies m
-            JOIN watch_logs wl ON wl.movie_id = m.id
-            JOIN categories c ON c.id = m.category_id
-            WHERE wl.watched_at >= now() - INTERVAL '7 days'
-            GROUP BY m.id, c.name
-            ORDER BY SUM(wl.watch_time_sec) DESC
-            LIMIT 10
-        """;
+public ResponseEntity<List<Map<String, Object>>> getPopularMovies(
+        @RequestParam(required = false) String type
+) {
+    String sql = """
+        SELECT m.id, m.title, c.name AS category, m.thumbnail_url
+        FROM movies m
+        JOIN categories c ON c.id = m.category_id
+        WHERE 1=1
+    """;
 
-        List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
-        return ResponseEntity.ok(movies);
+    List<Object> params = new java.util.ArrayList<>();
+
+    if (type != null && !type.isBlank() && !"All".equalsIgnoreCase(type)) {
+        sql += " AND UPPER(m.type) = ? ";
+        params.add(type.trim().toUpperCase());
     }
+
+    sql += " ORDER BY m.id DESC LIMIT 10 ";
+
+    List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, params.toArray());
+    return ResponseEntity.ok(movies);
+}
+
 
     // Watching Right Now
     @GetMapping("/watching-now")
-    public ResponseEntity<List<Map<String, Object>>> getWatchingNow() {
-        String sql = """
-            SELECT DISTINCT m.id, m.title, c.name AS category, m.thumbnail_url
-            FROM movies m
-            JOIN watch_logs wl ON wl.movie_id = m.id
-            JOIN categories c ON c.id = m.category_id
-            WHERE wl.event_type = 'PLAY'
-              AND wl.watched_at >= now() - INTERVAL '5 minutes'
-            LIMIT 10
-        """;
+public ResponseEntity<List<Map<String, Object>>> getWatchingNow(
+        @RequestParam(required = false) String type
+) {
+    String sql = """
+        SELECT m.id, m.title, c.name AS category, m.thumbnail_url
+        FROM movies m
+        JOIN categories c ON c.id = m.category_id
+        WHERE 1=1
+    """;
 
-        List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
-        return ResponseEntity.ok(movies);
+    List<Object> params = new java.util.ArrayList<>();
+
+    if (type != null && !type.isBlank() && !"All".equalsIgnoreCase(type)) {
+        sql += " AND UPPER(m.type) = ? ";
+        params.add(type.trim().toUpperCase());
     }
+
+    sql += " ORDER BY random() LIMIT 10 ";
+
+    List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, params.toArray());
+    return ResponseEntity.ok(movies);
+}
+
 
     // New Releases
-    @GetMapping("/new")
-    public ResponseEntity<List<Map<String, Object>>> getNewMovies() {
-        String sql = """
-            SELECT m.id, m.title, c.name AS category, m.thumbnail_url, m.created_at
-            FROM movies m
-            JOIN categories c ON c.id = m.category_id
-            WHERE m.created_at >= now() - INTERVAL '30 days'
-            ORDER BY m.created_at DESC
-            LIMIT 10
-        """;
+   @GetMapping("/new")
+public ResponseEntity<List<Map<String, Object>>> getNewMovies(
+        @RequestParam(required = false) String type
+) {
+    String sql = """
+        SELECT m.id, m.title, c.name AS category, m.thumbnail_url, m.created_at
+        FROM movies m
+        JOIN categories c ON c.id = m.category_id
+        WHERE m.created_at >= now() - INTERVAL '30 days'
+    """;
 
-        List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
-        return ResponseEntity.ok(movies);
+    List<Object> params = new java.util.ArrayList<>();
+
+    if (type != null && !type.isBlank() && !"All".equalsIgnoreCase(type)) {
+        sql += " AND UPPER(m.type) = ? ";
+        params.add(type.trim().toUpperCase());
     }
+
+    sql += " ORDER BY m.created_at DESC LIMIT 10 ";
+
+    List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, params.toArray());
+    return ResponseEntity.ok(movies);
+}
+
 
     //  Coming Soon
     @GetMapping("/coming-soon")
-    public ResponseEntity<List<Map<String, Object>>> getComingSoonMovies() {
-        String sql = """
-            SELECT m.id, m.title, c.name AS category, m.thumbnail_url
-            FROM movies m
-            JOIN categories c ON c.id = m.category_id
-            LEFT JOIN episodes e ON e.movie_id = m.id
-            WHERE e.id IS NULL
-            ORDER BY m.created_at DESC
-            LIMIT 10
-        """;
+public ResponseEntity<List<Map<String, Object>>> getComingSoonMovies(
+        @RequestParam(required = false) String type
+) {
+    String sql = """
+        SELECT m.id, m.title, c.name AS category, m.thumbnail_url
+        FROM movies m
+        JOIN categories c ON c.id = m.category_id
+        LEFT JOIN episodes e ON e.movie_id = m.id
+        WHERE e.id IS NULL
+    """;
 
-        List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql);
-        return ResponseEntity.ok(movies);
+    List<Object> params = new java.util.ArrayList<>();
+
+    if (type != null && !type.isBlank() && !"All".equalsIgnoreCase(type)) {
+        sql += " AND UPPER(m.type) = ? ";
+        params.add(type.trim().toUpperCase());
     }
+
+    sql += " ORDER BY m.created_at DESC LIMIT 10 ";
+
+    List<Map<String, Object>> movies = jdbcTemplate.queryForList(sql, params.toArray());
+    return ResponseEntity.ok(movies);
+}
+
 
     @GetMapping("/{id}")
 public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id) {
