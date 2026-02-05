@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 
-class CategorySection extends StatefulWidget {
-  const CategorySection({super.key});
+class CategorySection extends StatelessWidget {
+  final String selected; // 'All' | 'MOVIE' | 'SERIES'
+  final ValueChanged<String> onSelected;
 
-  @override
-  State<CategorySection> createState() => _CategorySectionState();
-}
+  const CategorySection({
+    super.key,
+    required this.selected,
+    required this.onSelected,
+  });
 
-class _CategorySectionState extends State<CategorySection> {
-  int _selectedIndex = 0;
-
-  final List<String> categories = [
-    'All',
-    'Movies',
-    'Series',
-    'Cartoons',
-    'Documentaries',
+  List<Map<String, String>> get categories => const [
+    {'label': 'All', 'value': 'All'},
+    {'label': 'Movies', 'value': 'MOVIE'},
+    {'label': 'Series', 'value': 'SERIES'},
   ];
 
   @override
@@ -24,17 +22,13 @@ class _CategorySectionState extends State<CategorySection> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          ...List.generate(
-            categories.length,
-            (index) => GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              child: _buildCategory(categories[index], _selectedIndex == index),
-            ),
-          ),
+          ...categories.map((c) {
+            final isActive = selected == c['value'];
+            return GestureDetector(
+              onTap: () => onSelected(c['value']!),
+              child: _buildCategory(c['label']!, isActive),
+            );
+          }).toList(),
           const SizedBox(width: 16),
         ],
       ),
