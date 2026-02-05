@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../components/search.dart';
 import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
 import '../../components/admin/movie_card_admin.dart';
-import '../admin/edit_movie.dart'; // ✅ правильный импорт
+import '../admin/edit_movie.dart';
 
 class ContentItem {
   final String id;
   final String title;
-  final String thumbnail_url;
-  final String category;
-  final bool is_hidden;
+  final String thumbnailUrl;
+  final String category; // сейчас сюда кладёшь category_id как строку
+  final bool isHidden;
 
   ContentItem({
     required this.id,
     required this.title,
-    required this.thumbnail_url,
+    required this.thumbnailUrl,
     required this.category,
-    required this.is_hidden,
+    required this.isHidden,
   });
 }
 
@@ -33,12 +34,19 @@ class HomePageAdmin extends StatefulWidget {
 
 class _HomePageAdminState extends State<HomePageAdmin> {
   String selectedCategory = 'All';
-  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   List<ContentItem> _contentItems = [];
   bool _isLoading = false;
   int _selectedIndex = 0;
 
   final List<String> _categories = ['Horrors', 'Action', 'Comedy', 'Drama'];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMovies();
+  }
 
   Future<void> _fetchMovies() async {
     setState(() => _isLoading = true);
@@ -48,7 +56,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       final token = prefs.getString('jwt_token');
 
       if (token == null) {
-        print('⚠️ Токен не найден. Пользователь не авторизован.');
+        debugPrint('⚠️ Токен не найден. Пользователь не авторизован.');
         return;
       }
 
@@ -62,55 +70,48 @@ class _HomePageAdminState extends State<HomePageAdmin> {
 
       if (response.statusCode == 200) {
         final List data = json.decode(response.body);
+
         setState(() {
-          _contentItems = data.map((movie) {
+          _contentItems = data.map<ContentItem>((movie) {
             return ContentItem(
               id: movie['id'].toString(),
-              title: movie['title'] ?? '',
-              thumbnail_url: movie['thumbnail_url'] ?? '',
-              category: movie['category_id']?.toString() ?? '',
-              is_hidden: movie['is_hidden'] ?? false,
+              title: (movie['title'] ?? '').toString(),
+              thumbnailUrl: (movie['thumbnail_url'] ?? '').toString(),
+              category: (movie['category_id'] ?? '').toString(),
+              isHidden: movie['is_hidden'] == true,
             );
           }).toList();
         });
       } else {
-        print('❌ Ошибка загрузки фильмов: ${response.statusCode}');
-        print(response.body);
+        debugPrint('❌ Ошибка загрузки фильмов: ${response.statusCode}');
+        debugPrint(response.body);
       }
     } catch (e) {
-      print('❌ Ошибка подключения: $e');
+      debugPrint('❌ Ошибка подключения: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchMovies();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   List<ContentItem> get _filteredContent {
+    final q = _searchQuery.trim().toLowerCase();
+
     return _contentItems.where((item) {
+      // Поиск по названию
+      final matchesSearch = q.isEmpty || item.title.toLowerCase().contains(q);
+
+      // Категория (как у тебя сейчас) — сравнение строка-в-строку
       final matchesCategory =
           selectedCategory == 'All' || item.category == selectedCategory;
-      final matchesSearch =
-          _searchController.text.isEmpty ||
-          item.title.toLowerCase().contains(
-            _searchController.text.toLowerCase(),
-          );
-      return matchesCategory && matchesSearch;
+
+      return matchesSearch && matchesCategory;
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final categories = ['All', ..._categories];
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
@@ -122,9 +123,50 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   const SizedBox(height: 16),
-                  const Search(),
+
+                  // ✅ рабочий Search: меняет _searchQuery и обновляет UI
+                  Search(
+                    onChanged: (query) {
+                      setState(() => _searchQuery = query);
+                    },
+                  ),
+
                   const SizedBox(height: 24),
-                  _buildCategoriesSection(),
+
+                  SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final cat = categories[index];
+                        final isSelected = selectedCategory == cat;
+
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedCategory = cat),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.white : Colors.grey[850],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              cat,
+                              style: TextStyle(
+                                color: isSelected ? Colors.black : Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
                   _buildAddNewContentCard(),
                   const SizedBox(height: 16),
@@ -157,7 +199,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
             ),
           ),
 
-          // ✅ Нижний навбар
           Positioned(
             bottom: 0,
             left: 0,
@@ -166,7 +207,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               selectedIndex: _selectedIndex,
               onItemTapped: (index) {
                 setState(() => _selectedIndex = index);
-                // можно добавить переход между страницами
               },
             ),
           ),
@@ -175,45 +215,15 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
   }
 
-  Widget _buildCategoriesSection() {
-    final categories = ['All', ..._categories];
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final isSelected = selectedCategory == categories[index];
-          return GestureDetector(
-            onTap: () => setState(() => selectedCategory = categories[index]),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.grey[850],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildAddNewContentCard() {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const AddMoviePage()),
         );
+        // чтобы после добавления обновлялось
+        _fetchMovies();
       },
       child: Container(
         width: double.infinity,
@@ -272,19 +282,18 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   }
 
   void _viewContent(ContentItem item) {
-    print('Просмотр: ${item.title}');
+    debugPrint('Просмотр: ${item.title}');
   }
 
-  void _editContent(ContentItem item) {
-    print('✏️ Нажали редактирование: ${item.title}');
-    Navigator.push(
+  void _editContent(ContentItem item) async {
+    debugPrint('✏️ Нажали редактирование: ${item.title}');
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditMovieScreen(
-          movieId: int.parse(item.id), // ✅ передаём правильный тип
-        ),
+        builder: (context) => EditMovieScreen(movieId: int.parse(item.id)),
       ),
     );
+    _fetchMovies();
   }
 
   void _deleteContent(ContentItem item) async {
@@ -292,10 +301,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2E2E2E),
-        title: const Text(
-          'Confirm delete',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Confirm delete', style: TextStyle(color: Colors.white)),
         content: Text(
           'Are you sure you want to delete "${item.title}"?',
           style: const TextStyle(color: Colors.white70),
@@ -307,20 +313,18 @@ class _HomePageAdminState extends State<HomePageAdmin> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.redAccent),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
     );
 
-    if (confirm == true) {
-      setState(() {
-        _contentItems.removeWhere((i) => i.id == item.id);
-      });
-      print('Удалено: ${item.title}');
-    }
+    if (confirm != true) return;
+
+    setState(() {
+      _contentItems.removeWhere((i) => i.id == item.id);
+    });
+
+    debugPrint('Удалено: ${item.title}');
   }
 }

@@ -90,7 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
         if (body['token'] != null) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('jwt_token', body['token']);
-          token = body['token']; // обновляем токен в памяти
+          token = body['token'];
         }
 
         _showToast('Profile updated successfully', isError: false);
@@ -133,7 +133,22 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
+
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Image.asset(
+            'assets/icons_user/settings_button.png', // ← ТВОЯ КАРТИНКА
+            width: 20,
+            height: 20,
+            color: const Color(0xFF545050),
+            colorBlendMode: BlendMode.srcIn,
+          ),
+        ),
+
         title: const Text('Settings', style: TextStyle(color: Colors.white)),
+
         actions: [
           IconButton(
             icon: Icon(
@@ -150,67 +165,68 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
+
       body: SafeArea(
         child: isLoading
             ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
+          child: CircularProgressIndicator(color: Colors.white),
+        )
             : Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SettingsHeader(
+                  username: usernameController.text,
+                  avatarUrl: avatarController.text,
+                  isEditing: isEditing,
+                  onAvatarChanged: (path) {
+                    setState(() => newAvatarPath = path);
+                  },
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SettingsHeader(
-                        username: usernameController.text,
-                        avatarUrl: avatarController.text,
-                        isEditing: isEditing,
-                        onAvatarChanged: (path) {
-                          setState(() => newAvatarPath = path);
-                        },
-                      ),
-                      const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                      // username
-                      isEditing
-                          ? TextField(
-                              controller: usernameController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: _inputStyle('Username'),
-                            )
-                          : SettingsInfoItem(
-                              title: 'Username',
-                              value: userData?['username'] ?? '',
-                            ),
-
-                      const SizedBox(height: 12),
-
-                      // email
-                      isEditing
-                          ? TextField(
-                              controller: emailController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: _inputStyle('Email'),
-                            )
-                          : SettingsInfoItem(
-                              title: 'Email',
-                              value: userData?['email'] ?? '',
-                            ),
-
-                      const SizedBox(height: 40),
-
-                      SettingsActionItem(
-                        title: 'Log out',
-                        color: Colors.white70,
-                        onTap: _logout,
-                      ),
-                    ],
-                  ),
+                // username
+                isEditing
+                    ? TextField(
+                  controller: usernameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputStyle('Username'),
+                )
+                    : SettingsInfoItem(
+                  title: 'Username',
+                  value: userData?['username'] ?? '',
                 ),
-              ),
+
+                const SizedBox(height: 12),
+
+                // email
+                isEditing
+                    ? TextField(
+                  controller: emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputStyle('Email'),
+                )
+                    : SettingsInfoItem(
+                  title: 'Email',
+                  value: userData?['email'] ?? '',
+                ),
+
+                const SizedBox(height: 40),
+
+                SettingsActionItem(
+                  title: 'Log out',
+                  color: Colors.white70,
+                  onTap: _logout,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

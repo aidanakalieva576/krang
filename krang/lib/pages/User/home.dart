@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _searchQuery = "";      // ← ключевая переменная поиска
   int _selectedIndex = 0;
   String _selectedType = 'All';
 
@@ -25,6 +26,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const double sectionGap = 40;
+
     final List<String> carouselImages = [
       'assets/icons_user/the_woman_in_cabin_10.png',
       'assets/icons_user/pickup.png',
@@ -41,10 +44,16 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 120),
                 children: [
-                  const Search(),
+                  // 🔍 ПОИСК — теперь реально работает
+                  Search(
+                    onChanged: (text) {
+                      setState(() => _searchQuery = text);
+                    },
+                  ),
+
+
                   const SizedBox(height: 20),
 
-                  // Заголовок для карусели — оставляем, т.к. это отдельный блок
                   _buildSectionTitle("For you"),
                   const SizedBox(height: 12),
 
@@ -52,10 +61,10 @@ class _HomePageState extends State<HomePage> {
                     height: 120,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      // убираем внутренний паддинг, чтобы картинки были ближе к борту
                       padding: EdgeInsets.zero,
                       itemCount: carouselImages.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 16),
+                      separatorBuilder: (_, __) =>
+                      const SizedBox(width: 16),
                       itemBuilder: (context, index) {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(14),
@@ -72,33 +81,52 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 32),
 
-                  // Компонент сам должен рисовать свой заголовок — удалил ручной заголовок
+                  // Категории
                   CategorySection(
                     selected: _selectedType,
-                    onSelected: (v) => setState(() => _selectedType = v),
+                    onSelected: (v) =>
+                        setState(() => _selectedType = v),
                   ),
 
                   const SizedBox(height: 32),
 
+                  // 🔹 ВСЕМ секциям передаём searchQuery
                   MovieSection(
                     title: 'Popular Right Now',
                     typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
                   ),
+                  const SizedBox(height: sectionGap),
+
                   MovieSection(
                     title: 'Watching right now',
                     typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
                   ),
-                  MovieSection(title: 'New', typeFilter: _selectedType),
-                  MovieSection(title: 'Coming soon', typeFilter: _selectedType),
+                  const SizedBox(height: sectionGap),
 
-                  // ActorSection тоже, вероятно, содержит заголовок внутри
+                  MovieSection(
+                    title: 'New',
+                    typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
+                  ),
+                  const SizedBox(height: sectionGap),
+
+                  MovieSection(
+                    title: 'Coming soon',
+                    typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
+                  ),
+
+                  const SizedBox(height: 32),
+
                   const ActorSection(),
                 ],
               ),
             ),
           ),
 
-          // Navbar
+          // Навбар снизу
           Positioned(
             bottom: 0,
             left: 0,

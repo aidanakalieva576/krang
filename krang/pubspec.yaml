@@ -53,7 +53,8 @@ flutter:
     - assets/icons_user/nav_user.png
     - assets/icons_user/home.png
     - assets/icons_user/nav_search.png
-    - assets/icons_user/lego_movie.jpeg 
+    - assets/icons_user/lego_movie.jpeg
+    - assets/icons_user/settings_button.png
     - assets/icons_admin/
     - assets/icons_user/
   uses-material-design: true
