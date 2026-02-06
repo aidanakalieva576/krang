@@ -83,7 +83,9 @@ class _LoginPageState extends State<LoginPage> {
 
         _showToast(message, isError: true);
       }
-    } catch (_) {
+    } catch (e, s) {
+      debugPrint("❌ API ERROR: $e");
+      debugPrint("📍 STACK TRACE:\n$s");
       _showToast("Connection error. Please try again later.", isError: true);
     } finally {
       setState(() => _isLoading = false);

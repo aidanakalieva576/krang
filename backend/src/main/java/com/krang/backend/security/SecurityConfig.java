@@ -38,7 +38,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 
     // ✅ Разрешаем только локальные адреса (и можно добавить прод позже)
     corsConfig.setAllowedOriginPatterns(List.of(
-        "http://localhost:*",
+        "http://172.20.10.4:*",
         "http://127.0.0.1:*"
     ));
 

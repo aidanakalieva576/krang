@@ -15,7 +15,7 @@ dependencies:
   http: ^1.2.0
   video_player: ^2.9.1
   google_fonts: ^6.2.1
-
+  chewie: ^1.8.5
   toastification: ^3.0.3
 
 

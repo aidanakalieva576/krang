@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ContinueWatchingItem extends StatelessWidget {
   final String title;
-  final String imagePath;
+  final String imagePath; // URL или asset
   final double progress;
 
   const ContinueWatchingItem({
@@ -12,39 +12,29 @@ class ContinueWatchingItem extends StatelessWidget {
     required this.progress,
   });
 
+  bool get _isNetwork => imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12), // ✅ обрезаем всё, включая прогресс-бар
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         height: 100,
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF252525), // светлее фона
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        decoration: const BoxDecoration(color: Color(0xFF252525)),
         child: Stack(
           children: [
-            // Основной контент
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // 📸 Картинка
                 Padding(
                   padding: const EdgeInsets.only(left: 12, top: 10, bottom: 10),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      imagePath,
+                    child: SizedBox(
                       width: 70,
                       height: 70,
-                      fit: BoxFit.cover,
+                      child: _isNetwork
+                          ? Image.network(imagePath, fit: BoxFit.cover)
+                          : Image.asset(imagePath, fit: BoxFit.cover),
                     ),
                   ),
                 ),
@@ -54,6 +44,8 @@ class ContinueWatchingItem extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                     child: Text(
                       title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -65,16 +57,16 @@ class ContinueWatchingItem extends StatelessWidget {
               ],
             ),
 
-            // 🔵 Прогресс-бар внизу контейнера
+            // ✅ Прогресс снизу
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: LinearProgressIndicator(
-                value: progress,
+                value: progress.clamp(0.0, 1.0),
+                minHeight: 6, // сделай толще чтобы точно было видно
+                backgroundColor: Colors.white12,
                 color: Colors.blueAccent,
-                backgroundColor: Colors.grey[800],
-                minHeight: 3,
               ),
             ),
           ],

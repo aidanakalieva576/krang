@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../components/continue_watching.dart';
 import '../../components/navbar.dart';
 
@@ -12,32 +16,66 @@ class ContinueWatchingScreen extends StatefulWidget {
 class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
   int _selectedIndex = -1;
 
-  void _onItemTapped(int index) {
+  bool _loading = true;
+  bool _error = false;
+  List<Map<String, dynamic>> _items = [];
+
+  static const String _baseUrl = 'http://172.20.10.4:8080';
+
+  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchContinueWatching();
+  }
+
+  Future<void> _fetchContinueWatching() async {
     setState(() {
-      _selectedIndex = index;
+      _loading = true;
+      _error = false;
     });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+
+      if (token == null) {
+        setState(() {
+          _items = [];
+          _loading = false;
+        });
+        return;
+      }
+
+      final res = await http.get(
+        Uri.parse('$_baseUrl/api/user/watch-progress/continue-watching'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (res.statusCode == 200) {
+        final List data = jsonDecode(res.body);
+        setState(() {
+          _items = data.cast<Map<String, dynamic>>();
+          _loading = false;
+        });
+      } else {
+        setState(() {
+          _loading = false;
+          _error = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ continue watching error: $e');
+      setState(() {
+        _loading = false;
+        _error = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      {
-        'title': 'K-pop Demon hunters',
-        'image': 'assets/icons_user/kpop_demon_hunters.png',
-        'progress': 0.9,
-      },
-      {
-        'title': 'The lovely bones',
-        'image': 'assets/icons_user/the_lovely_bones.png',
-        'progress': 0.75,
-      },
-      {
-        'title': 'The Orange is the new Black',
-        'image': 'assets/icons_user/oitnb.png',
-        'progress': 0.25,
-      },
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
       body: SafeArea(
@@ -62,25 +100,82 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
                     ],
                   ),
                 ),
+
                 Expanded(
-                  child: ListView.builder(
+                  child: _loading
+                      ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
+                      : _error
+                      ? Center(
+                    child: TextButton(
+                      onPressed: _fetchContinueWatching,
+                      child: const Text(
+                        'Ошибка загрузки. Нажми чтобы повторить',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  )
+                      : _items.isEmpty
+                      ? const Center(
+                    child: Text(
+                      'Ты пока ничего не смотришь 🙂',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                      : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: items.length,
+                    itemCount: _items.length,
                     itemBuilder: (context, index) {
-                      final item = items[index];
+                      final item = _items[index];
+
+                      final movieId = (item['movie_id'] as num).toInt();
+                      final title = (item['title'] ?? '') as String;
+                      final imageUrl = (item['thumbnail_url'] ?? '') as String;
+                      final videoUrl = (item['video_url'] ?? '') as String;
+
+                      final currentSec = (item['current_time_sec'] as num?)?.toInt() ?? 0;
+                      final durationSec = (item['duration_seconds'] as num?)?.toInt() ?? 0;
+
+                      final progress = durationSec > 0
+                          ? (currentSec / durationSec).clamp(0.0, 1.0)
+                          : 0.0;
+
+
+                      debugPrint(
+                        '🎯 CW item movieId=$movieId current=$currentSec duration=$durationSec progress=$progress',
+                      );
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: ContinueWatchingItem(
-                          title: item['title'] as String,
-                          imagePath: item['image'] as String,
-                          progress: item['progress'] as double,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/watch',
+                              arguments: {
+                                'movieId': movieId,
+                                'title': title,
+                                'videoUrl': videoUrl,
+                              },
+                            ).then((_) => _fetchContinueWatching());
+                          },
+                          child: ContinueWatchingItem(
+                            title: title,
+                            imagePath: imageUrl,
+                            progress: progress,
+                          ),
                         ),
+
                       );
                     },
+
+
                   ),
                 ),
               ],
             ),
+
             Positioned(
               left: 0,
               right: 0,
