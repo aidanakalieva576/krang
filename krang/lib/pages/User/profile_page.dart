@@ -37,13 +37,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        ProfileMenuItem(
-                          title: 'Collections',
-                          backgroundColor: const Color(0xFF2D2C2C),
-                          onTap: () {
-                            Navigator.pushNamed(context, '/collections');
-                          },
-                        ),
+                        // ProfileMenuItem(
+                        //   title: 'Collections',
+                        //   backgroundColor: const Color(0xFF2D2C2C),
+                        //   onTap: () {
+                        //     Navigator.pushNamed(context, '/collections');
+                        //   },
+                        // ),
                         const SizedBox(height: 8),
                         ProfileMenuItem(
                           title: 'Settings',

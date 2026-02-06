@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         '/registration': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
         '/home': (context) => HomePage(),
-        '/collections': (context) => CollectionsScreen(),
+        // '/collections': (context) => CollectionsScreen(),
         '/settings': (context) => SettingsPage(),
         '/support': (context) => SupportScreen(),
         '/continue_watching': (context) => ContinueWatchingScreen(),

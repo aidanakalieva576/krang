@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../pages/admin/home_page_admin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class MovieCardAdmin extends StatefulWidget {
   final ContentItem item;
@@ -29,19 +28,19 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
   @override
   void initState() {
     super.initState();
-    isHidden = widget.item.is_hidden ?? false;
+    isHidden = widget.item.isHidden;   // ✅ исправлено
   }
 
   /// 🛰️ Обновляем флаг is_hidden в БД
   Future<void> _toggleHidden() async {
     final endpoint = isHidden ? 'unhide' : 'hide';
     final url = Uri.parse(
-      'http://172.20.10.4:8080/api/admin/movies/${widget.item.id}/$endpoint',
+      'http://localhost:8080/api/admin/movies/${widget.item.id}/$endpoint',
     );
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token'); // ← сохраняется при логине
+      final token = prefs.getString('jwt_token');
 
       if (token == null) {
         debugPrint('❌ Нет токена авторизации');
@@ -52,7 +51,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // 👈 обязательно
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -72,7 +71,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: isHidden ? 0.45 : 1.0, // 🔹 затемняем всю карточку
+      opacity: isHidden ? 0.45 : 1.0,
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -90,12 +89,12 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                 colorFilter: isHidden
                     ? const ColorFilter.mode(Colors.black45, BlendMode.darken)
                     : const ColorFilter.mode(
-                        Colors.transparent,
-                        BlendMode.multiply,
-                      ),
+                  Colors.transparent,
+                  BlendMode.multiply,
+                ),
                 child: Image.network(
-                  widget.item.thumbnail_url.isNotEmpty
-                      ? widget.item.thumbnail_url
+                  widget.item.thumbnailUrl.isNotEmpty   // ✅ исправлено
+                      ? widget.item.thumbnailUrl
                       : 'https://via.placeholder.com/120x160',
                   width: 90,
                   height: 120,
@@ -103,6 +102,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                 ),
               ),
             ),
+
             const SizedBox(width: 20),
 
             // 🧾 Название и кнопки
@@ -122,10 +122,9 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                   ),
                   const SizedBox(height: 12),
 
-                  // 🔘 Кнопки действий
                   Row(
                     children: [
-                      // 👁 Кнопка hide/unhide — всегда активна
+                      // 👁 hide / unhide
                       _buildIconButton(
                         iconPath: isHidden
                             ? 'assets/icons_admin/unhide.png'
@@ -134,7 +133,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                       ),
                       const SizedBox(width: 20),
 
-                      // ✏️ Редактировать (недоступно если скрыто)
+                      // ✏️ Edit
                       IgnorePointer(
                         ignoring: isHidden,
                         child: _buildIconButton(
@@ -144,7 +143,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                       ),
                       const SizedBox(width: 20),
 
-                      // 🗑 Удалить (недоступно если скрыто)
+                      // 🗑 Delete
                       IgnorePointer(
                         ignoring: isHidden,
                         child: _buildIconButton(
@@ -163,7 +162,6 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
     );
   }
 
-  /// 🔘 Кнопка с иконкой
   Widget _buildIconButton({
     required String iconPath,
     required VoidCallback onTap,

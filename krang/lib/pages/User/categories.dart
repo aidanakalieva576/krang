@@ -12,6 +12,7 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
+  String _searchQuery = "";
   int _selectedIndex = 1;
   String _selectedType = 'All';
 
@@ -34,7 +35,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 padding: const EdgeInsets.only(bottom: 120),
                 children: [
                   // 🔍 Поиск
-                  Search(),
+                  Search(
+                    onChanged: (text) {
+                      debugPrint("🔍 SEARCH: $text");
+                    },
+                  ),
                   SizedBox(height: 28),
 
                   // 🧩 Категории
@@ -60,16 +65,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   MovieSection(
                     title: 'Popular Right Now',
                     typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
                   ),
                   SizedBox(height: 32),
                   MovieSection(
                     title: 'Watching right now',
                     typeFilter: _selectedType,
+                    searchQuery: _searchQuery,
                   ),
                   SizedBox(height: 32),
-                  MovieSection(title: 'New', typeFilter: _selectedType),
+                  MovieSection(title: 'New', typeFilter: _selectedType, searchQuery: _searchQuery,),
                   SizedBox(height: 32),
-                  MovieSection(title: 'Coming soon', typeFilter: _selectedType),
+                  MovieSection(title: 'Coming soon', typeFilter: _selectedType, searchQuery: _searchQuery,),
                 ],
               ),
             ),
