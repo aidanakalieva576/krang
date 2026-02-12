@@ -22,3 +22,6 @@ build/
 *.iml
 *.ipr
 *.iws
+
+!admin/
+!admin/**
