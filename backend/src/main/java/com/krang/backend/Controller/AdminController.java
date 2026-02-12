@@ -49,6 +49,7 @@ public class AdminController {
 
 
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterRequest req) {
         User created = adminService.createAdmin(req);
 

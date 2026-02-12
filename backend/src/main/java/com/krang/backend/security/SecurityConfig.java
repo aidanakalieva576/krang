@@ -38,9 +38,11 @@ public CorsConfigurationSource corsConfigurationSource() {
 
     // ✅ Разрешаем только локальные адреса (и можно добавить прод позже)
     corsConfig.setAllowedOriginPatterns(List.of(
-        "http://172.20.10.4:*",
-        "http://127.0.0.1:*"
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "http://172.20.10.4:*"
     ));
+
 
     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     corsConfig.setAllowedHeaders(List.of("*"));
@@ -60,21 +62,23 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     http
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/api/auth/**",
-                "/api/admin/register",
-                "/swagger-ui/**",
-                "/v3/api-docs/**",
-                "/api/public/movies/**",
-                "/api/users/**",         // ✅ добавлен слэш
-                "/api/recovery/**",
-                "/api/phone/**"   // ✅ теперь разрешён весь recovery
-            ).permitAll()
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .anyRequest().authenticated()
-        )
-        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(
+                            "/api/auth/**",
+//                            "/api/admin/register",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/api/public/movies/**",
+                            "/api/users/**",
+                            "/api/recovery/**",
+                            "/api/phone/**"
+                    ).permitAll()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+            )
+
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .headers(headers -> headers.frameOptions().disable());
 

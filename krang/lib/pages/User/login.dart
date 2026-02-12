@@ -12,16 +12,24 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const String _baseUrl = 'http://172.20.10.4:8080';
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    // 🔹 Локальные проверки
     if (email.isEmpty || password.isEmpty) {
       _showToast("Please fill in all fields", isError: true);
       return;
@@ -34,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final url = Uri.parse('http://localhost:8080/api/auth/login');
+      final url = Uri.parse('$_baseUrl/api/auth/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -44,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('Login success: $data');
-        // Сохраняем токен/роль/почту в SharedPreferences (если есть)
+
         final role = data['role'] as String?;
         final token = data['token'] as String?;
 
@@ -52,20 +60,18 @@ class _LoginPageState extends State<LoginPage> {
         if (token != null) await prefs.setString('jwt_token', token);
         if (role != null) await prefs.setString('role', role);
         await prefs.setString('user_email', email);
-        debugPrint('Token saved in SharedPreferences');
 
         _showToast("Login successful!", isError: false);
 
-        // Навигация
-        if (mounted) {
-          Future.delayed(const Duration(seconds: 1), () {
-            if (role == 'ADMIN') {
-              Navigator.pushReplacementNamed(context, '/admin_home');
-            } else {
-              Navigator.pushReplacementNamed(context, '/home');
-            }
-          });
-        }
+        if (!mounted) return;
+        Future.delayed(const Duration(milliseconds: 700), () {
+          if (!mounted) return;
+          if (role == 'ADMIN') {
+            Navigator.pushReplacementNamed(context, '/admin_home');
+          } else {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        });
       } else {
         String message = 'Invalid email or password';
         try {
@@ -88,11 +94,10 @@ class _LoginPageState extends State<LoginPage> {
       debugPrint("📍 STACK TRACE:\n$s");
       _showToast("Connection error. Please try again later.", isError: true);
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // 🔔 Универсальный красивый toast
   void _showToast(String message, {bool isError = false}) {
     final background = isError
         ? Colors.redAccent.withOpacity(0.15)
@@ -140,69 +145,96 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // ✅ важно
       backgroundColor: const Color(0xFF1A1A1A),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              const Text(
-                'Log in',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(), // ✅ тап вне поля закрывает клавиатуру
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            child: ConstrainedBox(
+              // ✅ чтобы контент не "прилипал" к верху на больших экранах
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height
+                    - MediaQuery.of(context).padding.top
+                    - MediaQuery.of(context).padding.bottom
+                    - 80,
               ),
-              const SizedBox(height: 50),
-              TextField(
-                controller: _emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'email',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigo),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigoAccent),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'password',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigo),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.indigoAccent),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 60),
+                    const Text(
+                      'Log in',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
                     ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.indigo)
-                      : const Text(
+                    const SizedBox(height: 50),
+
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'email',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.indigo),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.indigoAccent),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'password',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.indigo),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.indigoAccent),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _login,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300],
+                          disabledBackgroundColor: Colors.grey[500], // ✅ чтобы красиво выглядело при disabled
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.indigo,
+                          ),
+                        )
+                            : const Text(
                           'Log in',
                           style: TextStyle(
                             color: Colors.indigo,
@@ -210,36 +242,42 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/registration'),
+                      child: const Text(
+                        'I do not have an account',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/phone_recovery'),
+                      child: const Text(
+                        'Forgot your account? Recover via phone',
+                        style: TextStyle(
+                          color: Colors.lightBlueAccent,
+                          fontSize: 13,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(), // ✅ чтобы низ не прилипал, но без overflow
+                  ],
                 ),
               ),
-              const SizedBox(height: 30),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/registration');
-                },
-                child: const Text(
-                  'I do not have an account',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/phone_recovery');
-                },
-                child: const Text(
-                  'Forgot your account? Recover via phone',
-                  style: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontSize: 13,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
