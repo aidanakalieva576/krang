@@ -24,7 +24,7 @@ class WatchPage extends StatefulWidget {
 }
 
 class _WatchPageState extends State<WatchPage> with WidgetsBindingObserver {
-  static const String _baseUrl = 'http://172.20.10.4:8080';
+  static const String _baseUrl = 'http://localhost:8080';
 
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;

@@ -20,7 +20,7 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
   bool _error = false;
   List<Map<String, dynamic>> _items = [];
 
-  static const String _baseUrl = 'http://172.20.10.4:8080';
+  static const String _baseUrl = 'http://localhost:8080';
 
   void _onItemTapped(int index) => setState(() => _selectedIndex = index);
 
