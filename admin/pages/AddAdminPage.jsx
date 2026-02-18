@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { http } from "../api/http";
 
 export default function AddAdminPage() {
@@ -9,14 +9,12 @@ export default function AddAdminPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // ===== ВАЛИДАЦИИ =====
-
-  const usernameValid = /^[a-zA-Z0-9_]{4,20}$/.test(username);
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const passwordValid =
-    password.length >= 8 &&
-    /[A-Za-z]/.test(password) &&
-    /\d/.test(password);
+  const usernameValid = useMemo(() => /^[a-zA-Z0-9_]{4,20}$/.test(username), [username]);
+  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
+  const passwordValid = useMemo(
+    () => password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password),
+    [password]
+  );
 
   const formValid = usernameValid && emailValid && passwordValid;
 
@@ -31,94 +29,92 @@ export default function AddAdminPage() {
       await http.post("/api/admin/register", {
         username: username.trim(),
         email: email.trim().toLowerCase(),
-        password
+        password,
       });
 
-      setMsg("✅ Админ успешно создан");
+      setMsg("✅ Admin created");
       setUsername("");
       setEmail("");
       setPassword("");
-
     } catch (err) {
       const text =
         err?.response?.data?.error ||
         err?.response?.data?.message ||
         err?.message ||
         "Ошибка";
-
       setMsg("❌ " + text);
     } finally {
       setLoading(false);
     }
   };
 
+  const inputCls =
+    "w-72 max-w-full bg-[#1a1a1a] text-white/90 placeholder:text-white/30 " +
+    "border border-black/50 rounded-md px-3 py-2 outline-none " +
+    "focus:border-white/20 focus:ring-2 focus:ring-white/5";
+
+  const labelCls = "text-sm text-white/80 mb-2";
+
   return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm max-w-xl">
-      <h1 className="text-xl font-semibold mb-5">
-        Создать администратора
-      </h1>
-
-      <form onSubmit={onSubmit} className="space-y-4">
-
-        {/* USERNAME */}
+    <div className="text-white/90">
+      <form onSubmit={onSubmit} className="space-y-10">
         <div>
-          <label className="text-sm text-gray-600">Username</label>
+          <div className={labelCls}>Username</div>
           <input
-            className="w-full border rounded-xl px-4 py-2 mt-1"
-            placeholder="admin_01"
+            className={inputCls}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder=""
           />
           {!usernameValid && username.length > 0 && (
-            <p className="text-xs text-red-500 mt-1">
-              4–20 символов, только латиница, цифры и _
-            </p>
+            <div className="text-xs text-red-400 mt-2">
+              4–20 символов, латиница/цифры/_
+            </div>
           )}
         </div>
 
-        {/* EMAIL */}
         <div>
-          <label className="text-sm text-gray-600">Email</label>
+          <div className={labelCls}>Email</div>
           <input
-            className="w-full border rounded-xl px-4 py-2 mt-1"
-            placeholder="admin@mail.com"
+            className={inputCls}
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            type="email"
+            placeholder=""
           />
           {!emailValid && email.length > 0 && (
-            <p className="text-xs text-red-500 mt-1">
-              Неверный формат email
-            </p>
+            <div className="text-xs text-red-400 mt-2">Неверный email</div>
           )}
         </div>
 
-        {/* PASSWORD */}
         <div>
-          <label className="text-sm text-gray-600">Пароль</label>
+          <div className={labelCls}>Password</div>
           <input
-            className="w-full border rounded-xl px-4 py-2 mt-1"
-            placeholder="Минимум 8 символов"
+            className={inputCls}
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            type="password"
+            placeholder=""
           />
           {!passwordValid && password.length > 0 && (
-            <p className="text-xs text-red-500 mt-1">
-              Минимум 8 символов, 1 буква и 1 цифра
-            </p>
+            <div className="text-xs text-red-400 mt-2">
+              8+ символов, 1 буква и 1 цифра
+            </div>
           )}
         </div>
 
         <button
-          disabled={!formValid || loading}
-          className="w-full bg-black text-white rounded-xl py-2.5 disabled:opacity-50"
           type="submit"
+          disabled={!formValid || loading}
+          className="w-72 max-w-full bg-[#555A72] text-white font-medium
+                     rounded-md px-4 py-2
+                     disabled:opacity-40 disabled:cursor-not-allowed
+                     hover:opacity-95 transition"
         >
-          {loading ? "Создание..." : "Создать админа"}
+          {loading ? "Creating..." : "Create admin"}
         </button>
 
-        {msg && <div className="text-sm mt-2">{msg}</div>}
+        {msg && <div className="text-sm text-white/80">{msg}</div>}
       </form>
     </div>
   );
