@@ -1,5 +1,4 @@
 package com.krang.backend.Controller;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.krang.backend.dto.RegisterRequest;
+import com.krang.backend.dto.UpdateMovieRequest;
 import com.krang.backend.model.Category;
 import com.krang.backend.model.Movie;
 import com.krang.backend.model.MovieRating;
@@ -173,4 +175,110 @@ public class AdminController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
+
+    @DeleteMapping("/movies/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
+
+        if (!movieRepository.existsById(id)) {
+            return ResponseEntity.status(404).body(Map.of("error", "Movie not found"));
+        }
+
+        movieRepository.deleteById(id);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
+    @PutMapping("/movies/{id}")
+public ResponseEntity<?> updateMovie(
+        @PathVariable Long id,
+        @RequestBody UpdateMovieRequest req
+) {
+    Movie movie = movieRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Movie not found"));
+
+    movie.setTitle(req.title());
+    movie.setDescription(req.description());
+    movie.setReleaseYear(req.releaseYear());
+    movie.setPlatform(req.platform());
+    movie.setDirector(req.director());
+    movie.setType(req.type());
+
+    if (req.categoryId() != null) {
+        Category category = categoryRepository.findById(req.categoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        movie.setCategory(category);
+    }
+
+    movieRepository.save(movie);
+
+    return ResponseEntity.ok(Map.of("message", "Movie updated"));
+}
+
+@PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
+public ResponseEntity<?> updateMovie(
+        @PathVariable Long id,
+        @RequestParam String title,
+        @RequestParam String description,
+        @RequestParam Integer releaseYear,
+        @RequestParam String platform,
+        @RequestParam String director,
+        @RequestParam String type,
+        @RequestParam Long categoryId,
+        @RequestParam(required = false) MultipartFile thumbnail,
+        @RequestParam(required = false) MultipartFile video
+) throws Exception {
+
+    Movie movie = movieRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Movie not found"));
+
+    // Обновляем обычные поля
+    movie.setTitle(title);
+    movie.setDescription(description);
+    movie.setReleaseYear(releaseYear);
+    movie.setPlatform(platform);
+    movie.setDirector(director);
+    movie.setType(type);
+
+    Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+
+    movie.setCategory(category);
+
+    // 📸 Загрузка картинки
+    if (thumbnail != null && !thumbnail.isEmpty()) {
+        Map uploadResult = cloudinary.uploader().upload(
+                thumbnail.getBytes(),
+                ObjectUtils.asMap("folder", "movies/thumbnails")
+        );
+
+        String imageUrl = uploadResult.get("secure_url").toString();
+        movie.setThumbnailUrl(imageUrl);
+    }
+
+    // 🎬 Загрузка видео (только если MOVIE)
+    if (video != null && !video.isEmpty()) {
+
+        if (!"MOVIE".equalsIgnoreCase(type)) {
+            return ResponseEntity.badRequest()
+                    .body("Video upload allowed only for MOVIE type");
+        }
+
+        Map uploadResult = cloudinary.uploader().upload(
+                video.getBytes(),
+                ObjectUtils.asMap(
+                        "resource_type", "video",
+                        "folder", "movies/videos"
+                )
+        );
+
+        String videoUrl = uploadResult.get("secure_url").toString();
+        movie.setVideoUrl(videoUrl);
+    }
+
+    movieRepository.save(movie);
+
+    return ResponseEntity.ok(Map.of("message", "Movie updated"));
+}
+
 }

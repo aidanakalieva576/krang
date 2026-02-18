@@ -2,6 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+
+File? pickedThumbnail;
+File? pickedVideo;
 
 class EditMovieScreen extends StatefulWidget {
   final int movieId; // ← принимаем ID фильма
@@ -38,6 +43,58 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     loadMovieData();
   }
 
+  Future<void> saveMovieMultipart() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token == null) throw Exception('No token');
+
+    final uri = Uri.parse(
+      'http://172.20.10.4:8080/api/admin/movies/${widget.movieId}',
+    );
+
+    final request = http.MultipartRequest('PUT', uri);
+
+    request.headers['Authorization'] = 'Bearer $token';
+    // Content-Type НЕ ставь вручную — MultipartRequest сам поставит boundary
+
+    // обязательные поля (как у тебя в бэке @RequestParam без required=false)
+    request.fields['title'] = title;
+    request.fields['description'] = descriptionController.text.trim();
+    request.fields['releaseYear'] = yearController.text.trim();
+    request.fields['platform'] = platformController.text.trim();
+    request.fields['director'] = directorController.text.trim();
+    request.fields['type'] = 'MOVIE'; // или SERIES (как у тебя)
+    request.fields['categoryId'] = '1'; // подставь реальный id категории
+
+    // optional thumbnail
+    if (pickedThumbnail != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('thumbnail', pickedThumbnail!.path),
+      );
+    }
+
+    // optional video (только MOVIE)
+    if (pickedVideo != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('video', pickedVideo!.path),
+      );
+    }
+
+    final streamed = await request.send();
+    final response = await http.Response.fromStream(streamed);
+
+    print('PUT multipart status: ${response.statusCode}');
+    print('body: ${response.body}');
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('✅ Changes saved!')));
+    } else {
+      throw Exception('Save failed: ${response.statusCode} ${response.body}');
+    }
+  }
+
   Future<void> loadMovieData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -48,7 +105,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/admin/movies/${widget.movieId}'),
+        Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -428,11 +485,16 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Changes saved!')),
-                      );
+                    onTap: () async {
+                      try {
+                        await saveMovieMultipart();
+                      } catch (e) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('❌ $e')));
+                      }
                     },
+
                     child: Image.asset(
                       'assets/icons_admin/done.png',
                       width: 40,

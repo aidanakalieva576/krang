@@ -1,19 +1,14 @@
 package com.krang.backend.Controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.apache.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,75 +16,25 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.krang.backend.model.Movie;
-import com.krang.backend.repository.MovieRepository;
 
 @RestController
-@RequestMapping("/api/admin/movies")
-public class MovieController {
+@RequestMapping("/api/admin")
+public class AdminMovieVideoController {
 
-    private final MovieRepository movieRepository;
     private final JdbcTemplate jdbcTemplate;
     private final Cloudinary cloudinary;
 
-    public MovieController(MovieRepository movieRepository, JdbcTemplate jdbcTemplate, Cloudinary cloudinary) {
-        this.movieRepository = movieRepository;
+    public AdminMovieVideoController(JdbcTemplate jdbcTemplate, Cloudinary cloudinary) {
         this.jdbcTemplate = jdbcTemplate;
         this.cloudinary = cloudinary;
     }
 
-    @GetMapping
-    public List<Map<String, Object>> getAllMovies() {
-        String sql = """
-            SELECT m.id,
-                   m.title,
-                   c.name AS category,
-                   m.thumbnail_url,
-                   m.is_hidden
-            FROM movies m
-            LEFT JOIN categories c ON m.category_id = c.id
-        """;
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            Map<String, Object> row = new HashMap<>();
-            row.put("id", rs.getLong("id"));
-            row.put("title", rs.getString("title"));
-            row.put("category", rs.getString("category")); // теперь название категории
-            row.put("thumbnail_url", rs.getString("thumbnail_url"));
-            row.put("is_hidden", rs.getBoolean("is_hidden"));
-            return row;
-        });
-    }
-
-
-    @PutMapping("/{id}/hide")
-    public ResponseEntity<?> hideMovie(@PathVariable Long id) {
-        Optional<Movie> movieOpt = movieRepository.findById(id);
-        if (movieOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Movie movie = movieOpt.get();
-        movie.setHidden(true);
-        movieRepository.save(movie);
-        return ResponseEntity.ok(Map.of("message", "Movie updated"));
-    }
-
-
-    @PutMapping("/{id}/unhide")
-    public ResponseEntity<?> unhideMovie(@PathVariable Long id) {
-        Optional<Movie> movieOpt = movieRepository.findById(id);
-        if (movieOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Movie movie = movieOpt.get();
-        movie.setHidden(false);
-        movieRepository.save(movie);
-        return ResponseEntity.ok(Map.of("message", "Movie updated"));
-    }
-
-@PostMapping(
+    /**
+     * Upload videos for existing movie/series.
+     * MOVIE  -> only 1 file allowed, replace existing or insert new.
+     * SERIES -> multiple files allowed, insert each as new episode (auto episode_number).
+     */
+    @PostMapping(
             value = "/movies/{id}/videos",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
@@ -238,38 +183,4 @@ public class MovieController {
         base = base.trim();
         return base.isEmpty() ? fallback : base;
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getMovieById(@PathVariable Long id) {
-        Optional<Movie> optionalMovie = movieRepository.findById(id);
-        if (optionalMovie.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND)
-                    .body(Map.of("error", "Movie not found"));
-        }
-
-        Movie movie = optionalMovie.get();
-
-        Map<String, Object> movieData = new HashMap<>();
-        movieData.put("id", movie.getId());
-        movieData.put("title", movie.getTitle());
-        movieData.put("description", movie.getDescription());
-        movieData.put("releaseYear", movie.getReleaseYear());
-        movieData.put("type", movie.getType());
-        movieData.put("platform", movie.getPlatform());
-        movieData.put("director", movie.getDirector());
-        movieData.put("thumbnailUrl", movie.getThumbnailUrl());
-        movieData.put("videoUrl", movie.getVideoUrl());
-        movieData.put("trailerUrl", movie.getTrailerUrl());
-        movieData.put("category", movie.getCategory() != null ? movie.getCategory().getName() : null);
-        movieData.put("durationSeconds", movie.getDurationSeconds());
-        movieData.put("isHidden", movie.isHidden());
-        movieData.put("createdAt", movie.getCreatedAt());
-        movieData.put("updatedAt", movie.getUpdatedAt());
-
-        return ResponseEntity.ok(movieData);
-    }
-
-
-
-
 }

@@ -8,22 +8,41 @@ import '../../components/navbar_admin.dart';
 import 'add_movie.dart';
 import '../../components/admin/movie_card_admin.dart';
 import '../admin/edit_movie.dart';
+import 'package:krang/api/api_config.dart';
 
 class ContentItem {
   final String id;
   final String title;
   final String thumbnailUrl;
-  final String category; // сейчас сюда кладёшь category_id как строку
+  final String category;
   final bool isHidden;
 
-  ContentItem({
+  const ContentItem({
     required this.id,
     required this.title,
     required this.thumbnailUrl,
     required this.category,
     required this.isHidden,
   });
+
+  ContentItem copyWith({
+    String? id,
+    String? title,
+    String? thumbnailUrl,
+    String? category,
+    bool? isHidden,
+  }) {
+    return ContentItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      category: category ?? this.category,
+      isHidden: isHidden ?? this.isHidden,
+    );
+  }
 }
+
+
 
 class HomePageAdmin extends StatefulWidget {
   const HomePageAdmin({Key? key}) : super(key: key);
@@ -48,25 +67,30 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     _fetchMovies();
   }
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('jwt_token');
+  }
+
   Future<void> _fetchMovies() async {
     setState(() => _isLoading = true);
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-
+      final token = await _getToken();
       if (token == null) {
         debugPrint('⚠️ Токен не найден. Пользователь не авторизован.');
         return;
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/admin/movies'),
+        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
+
+      debugPrint('GET movies status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final List data = json.decode(response.body);
@@ -97,13 +121,9 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     final q = _searchQuery.trim().toLowerCase();
 
     return _contentItems.where((item) {
-      // Поиск по названию
       final matchesSearch = q.isEmpty || item.title.toLowerCase().contains(q);
-
-      // Категория (как у тебя сейчас) — сравнение строка-в-строку
       final matchesCategory =
           selectedCategory == 'All' || item.category == selectedCategory;
-
       return matchesSearch && matchesCategory;
     }).toList();
   }
@@ -124,7 +144,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                 children: [
                   const SizedBox(height: 16),
 
-                  // ✅ рабочий Search: меняет _searchQuery и обновляет UI
                   Search(
                     onChanged: (query) {
                       setState(() => _searchQuery = query);
@@ -192,6 +211,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                         onView: () => _viewContent(item),
                         onEdit: () => _editContent(item),
                         onDelete: () => _deleteContent(item),
+                        onHide: () => _toggleHidden(item), // ✅ ВОТ ЭТОГО НЕ ХВАТАЛО
                       );
                     }).toList(),
                 ],
@@ -222,7 +242,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
           context,
           MaterialPageRoute(builder: (context) => const AddMoviePage()),
         );
-        // чтобы после добавления обновлялось
         _fetchMovies();
       },
       child: Container(
@@ -286,7 +305,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   }
 
   void _editContent(ContentItem item) async {
-    debugPrint('✏️ Нажали редактирование: ${item.title}');
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -295,6 +313,60 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     );
     _fetchMovies();
   }
+
+  Future<void> _toggleHidden(ContentItem item) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token == null) {
+      debugPrint('⚠️ Токен не найден. Нельзя скрыть.');
+      return;
+    }
+
+    final newHidden = !item.isHidden;
+
+    // 1) Сразу обновляем UI (без ожидания сервера)
+    setState(() {
+      final idx = _contentItems.indexWhere((x) => x.id == item.id);
+      if (idx != -1) {
+        _contentItems[idx] = _contentItems[idx].copyWith(isHidden: newHidden);
+      }
+    });
+
+    try {
+      // 2) Запрос на сервер
+      final res = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies/${item.id}/hidden?hidden=$newHidden'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      debugPrint('HIDE status: ${res.statusCode}');
+      debugPrint('HIDE body: ${res.body}');
+
+      // 3) Если сервер ответил ошибкой — откатываемся к правде
+      if (!(res.statusCode >= 200 && res.statusCode < 300)) {
+        await _fetchMovies();
+        return;
+      }
+
+      // 4) Если сервер возвращает JSON как в Postman: {"is_hidden": true, "id": 6}
+      // Подстрахуемся и синхронизируем UI по серверу
+      if (res.body.isNotEmpty) {
+        final body = json.decode(res.body);
+        final serverHidden = body['is_hidden'] == true;
+
+        setState(() {
+          final idx = _contentItems.indexWhere((x) => x.id == item.id);
+          if (idx != -1) {
+            _contentItems[idx] = _contentItems[idx].copyWith(isHidden: serverHidden);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Ошибка скрытия: $e');
+      await _fetchMovies();
+    }
+  }
+
 
   void _deleteContent(ContentItem item) async {
     final confirm = await showDialog<bool>(
@@ -321,10 +393,26 @@ class _HomePageAdminState extends State<HomePageAdmin> {
 
     if (confirm != true) return;
 
+    final token = await _getToken();
+    if (token == null) return;
+
     setState(() {
       _contentItems.removeWhere((i) => i.id == item.id);
     });
 
-    debugPrint('Удалено: ${item.title}');
+    try {
+      final res = await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies/${item.id}'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      debugPrint('DELETE status: ${res.statusCode}');
+      debugPrint('DELETE body: ${res.body}');
+
+      await _fetchMovies();
+    } catch (e) {
+      debugPrint('❌ Ошибка удаления: $e');
+      await _fetchMovies();
+    }
   }
 }

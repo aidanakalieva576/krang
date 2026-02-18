@@ -172,7 +172,7 @@ public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id
 
     try {
         Map<String, Object> movie = jdbcTemplate.queryForMap(sql, id);
-        return ResponseEntity.ok(movie);
+        return ResponseEntity.ok(Map.of("message", "Movie updated"));
     } catch (Exception e) {
         System.err.println("❌ Error fetching movie details: " + e.getMessage());
         return ResponseEntity.status(404).body(Map.of("error", "Movie not found"));

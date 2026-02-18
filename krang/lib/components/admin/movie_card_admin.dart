@@ -1,75 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../pages/admin/home_page_admin.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class MovieCardAdmin extends StatefulWidget {
   final ContentItem item;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onView;
+  final VoidCallback onHide;// ✅
 
   const MovieCardAdmin({
     super.key,
     required this.item,
+    required this.onView,
     required this.onEdit,
     required this.onDelete,
-    required this.onView,
+    required this.onHide,
   });
+
 
   @override
   State<MovieCardAdmin> createState() => _MovieCardAdminState();
 }
 
 class _MovieCardAdminState extends State<MovieCardAdmin> {
-  late bool isHidden;
+
 
   @override
   void initState() {
     super.initState();
-    isHidden = widget.item.isHidden;   // ✅ исправлено
+
   }
 
-  /// 🛰️ Обновляем флаг is_hidden в БД
-  Future<void> _toggleHidden() async {
-    final endpoint = isHidden ? 'unhide' : 'hide';
-    final url = Uri.parse(
-      'http://localhost:8080/api/admin/movies/${widget.item.id}/$endpoint',
-    );
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-
-      if (token == null) {
-        debugPrint('❌ Нет токена авторизации');
-        return;
-      }
-
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          isHidden = !isHidden;
-        });
-        debugPrint('✅ Фильм ${isHidden ? "скрыт" : "показан"}');
-      } else {
-        debugPrint('❌ Ошибка при обновлении: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('❌ Ошибка при подключении к серверу: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final isHidden = widget.item.isHidden;
+
     return Opacity(
       opacity: isHidden ? 0.45 : 1.0,
       child: Container(
@@ -124,16 +94,14 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
 
                   Row(
                     children: [
-                      // 👁 hide / unhide
                       _buildIconButton(
                         iconPath: isHidden
                             ? 'assets/icons_admin/unhide.png'
                             : 'assets/icons_admin/hide.png',
-                        onTap: _toggleHidden,
+                        onTap: widget.onHide, // ✅ вызывает _toggleHidden в HomePageAdmin
                       ),
                       const SizedBox(width: 20),
 
-                      // ✏️ Edit
                       IgnorePointer(
                         ignoring: isHidden,
                         child: _buildIconButton(
@@ -143,7 +111,6 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                       ),
                       const SizedBox(width: 20),
 
-                      // 🗑 Delete
                       IgnorePointer(
                         ignoring: isHidden,
                         child: _buildIconButton(
@@ -153,6 +120,7 @@ class _MovieCardAdminState extends State<MovieCardAdmin> {
                       ),
                     ],
                   ),
+
                 ],
               ),
             ),

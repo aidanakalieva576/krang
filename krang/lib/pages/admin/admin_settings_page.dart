@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../components/setting_info_item.dart';
 import '../../components/setting_action_item.dart';
@@ -14,6 +17,17 @@ class AdminSettingsPage extends StatefulWidget {
 class _AdminSettingsPageState extends State<AdminSettingsPage> {
   int _selectedIndex = 3;
 
+  String? adminName;
+  String? adminEmail;
+  bool loading = true;
+  String? errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    loadAdminProfile();
+  }
+
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -23,9 +37,59 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   }
 
   void _deleteAccount() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Account deleted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Account deleted')));
+  }
+
+  Future<void> loadAdminProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+
+      if (token == null) {
+        setState(() {
+          loading = false;
+          errorText = "No token found";
+        });
+        return;
+      }
+
+      final res = await http.get(
+        Uri.parse('http://172.20.10.4:8080/api/admin/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      // debug
+      // ignore: avoid_print
+      print('📡 GET /api/admin/me -> ${res.statusCode}');
+      // ignore: avoid_print
+      print('Body: ${res.body}');
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+
+        setState(() {
+          adminName = (data['username'] ?? '').toString();
+          adminEmail = (data['email'] ?? '').toString();
+          loading = false;
+          errorText = null;
+        });
+      } else {
+        setState(() {
+          loading = false;
+          errorText = "Failed: ${res.statusCode} ${res.body}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        loading = false;
+        errorText = e.toString();
+      });
+    }
   }
 
   @override
@@ -36,89 +100,138 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 100, top: 8),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // всё выровнено слева
-                  children: [
-                    // 🔹 Заголовок по центру
-                    const Center(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 100,
+                top: 8,
+              ),
+              child: RefreshIndicator(
+                onRefresh: loadAdminProfile,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 🔹 Заголовок по центру
+                      const Center(
+                        child: Text(
+                          'Settings',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // 🔹 Аватар и имя
-                    Center(
-                      child: Column(
-                        children: const [
-                          CircleAvatar(
-                            radius: 55,
-                            backgroundColor: Colors.grey,
-                            child: Icon(Icons.person, color: Colors.white, size: 70),
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            'Alexis',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                      // 🔹 Аватар и имя
+                      Center(
+                        child: Column(
+                          children: [
+                            const CircleAvatar(
+                              radius: 55,
+                              backgroundColor: Colors.grey,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 70,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Change profile nickname',
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 14,
+                            const SizedBox(height: 12),
+                            Text(
+                              adminName?.isNotEmpty == true
+                                  ? adminName!
+                                  : 'Admin',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                            const Text(
+                              'Change profile nickname',
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 28),
 
-                    // 🔹 Информация (всё прижато к левому краю)
-                    const SettingsInfoItem(
-                      title: 'Phone number:',
-                      value: '+7 777 374 3434',
-                    ),
-                    const SizedBox(height: 18),
-                    const SettingsInfoItem(
-                      title: 'Email:',
-                      value: 'Alexis@gmail.com',
-                    ),
-                    const SizedBox(height: 18),
-                    const SettingsInfoItem(
-                      title: 'Password:',
-                      value: 'Shre******09',
-                    ),
+                      if (loading)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 18),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
 
-                    const SizedBox(height: 28),
+                      if (errorText != null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF121212),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: Text(
+                            errorText!,
+                            style: const TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
 
-                    // 🔹 Кнопка Log out
-                    SettingsActionItem(
-                      title: 'Log out',
-                      color: Colors.white70,
-                      onTap: _logout,
-                    ),
+                      if (!loading && errorText == null) ...[
+                        SettingsInfoItem(
+                          title: 'Email:',
+                          value: (adminEmail?.isNotEmpty == true)
+                              ? adminEmail!
+                              : '-',
+                        ),
+                        const SizedBox(height: 18),
 
-                    const SizedBox(height: 10),
+                        // если телефона/пароля нет в API — оставь заглушки
+                        const SettingsInfoItem(
+                          title: 'Phone number:',
+                          value: '-',
+                        ),
+                        const SizedBox(height: 18),
 
-                    // 🔹 Кнопка Delete account
-                    SettingsActionItem(
-                      title: 'Delete account',
-                      color: Colors.white70,
-                      onTap: _deleteAccount,
-                    ),
-                  ],
+                        const SettingsInfoItem(
+                          title: 'Password:',
+                          value: '********',
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // 🔹 Кнопка Log out
+                        SettingsActionItem(
+                          title: 'Log out',
+                          color: Colors.white70,
+                          onTap: _logout,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // 🔹 Кнопка Delete account
+                        SettingsActionItem(
+                          title: 'Delete account',
+                          color: Colors.white70,
+                          onTap: _deleteAccount,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
