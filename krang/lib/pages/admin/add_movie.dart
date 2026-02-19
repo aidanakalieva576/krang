@@ -107,7 +107,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
       return;
     }
 
-    final url = Uri.parse("http://localhost:8080/api/admin/movies");
+    final url = Uri.parse("http://localhost:8080/api/admin/add_movie");
 
     final body = json.encode({
       "title": nameController.text.trim(),
@@ -125,6 +125,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
       final token = prefs.getString(
         'jwt_token',
       ); // 🔒 вставь сюда реальный токен админа
+      print("🔥 JWT TOKEN = $token");
 
       final response = await http.post(
         url,
