@@ -331,11 +331,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
         _contentItems[idx] = _contentItems[idx].copyWith(isHidden: newHidden);
       }
     });
+    final path = newHidden ? 'hide' : 'unhide';
 
     try {
       // 2) Запрос на сервер
       final res = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies/${item.id}/hidden?hidden=$newHidden'),
+        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies/${item.id}/$path'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -352,15 +353,19 @@ class _HomePageAdminState extends State<HomePageAdmin> {
       // Подстрахуемся и синхронизируем UI по серверу
       if (res.body.isNotEmpty) {
         final body = json.decode(res.body);
-        final serverHidden = body['is_hidden'] == true;
 
-        setState(() {
-          final idx = _contentItems.indexWhere((x) => x.id == item.id);
-          if (idx != -1) {
-            _contentItems[idx] = _contentItems[idx].copyWith(isHidden: serverHidden);
-          }
-        });
+        if (body.containsKey('is_hidden')) {
+          final serverHidden = body['is_hidden'] == true;
+          setState(() {
+            final idx = _contentItems.indexWhere((x) => x.id == item.id);
+            if (idx != -1) {
+              _contentItems[idx] =
+                  _contentItems[idx].copyWith(isHidden: serverHidden);
+            }
+          });
+        }
       }
+
     } catch (e) {
       debugPrint('❌ Ошибка скрытия: $e');
       await _fetchMovies();

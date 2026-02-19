@@ -77,81 +77,69 @@ class _AddMoviePageState extends State<AddMoviePage> {
   }
 
   Future<void> submitMovie() async {
-    print('title: ${nameController.text}');
-    print('desc: ${descriptionController.text}');
-    print('year: ${yearController.text}');
-    print('genre: $selectedGenre');
-    print('type: $selectedType');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
 
-    if (nameController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        yearController.text.isEmpty ||
-        selectedGenre == null ||
-        selectedType == null) {
+    if (token == null || token.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ Please fill all required fields")),
+        const SnackBar(content: Text("❌ Нет токена. Сначала залогинься как admin")),
       );
       return;
     }
 
-    String? imageUrl;
-
-    if (selectedImage != null) {
-      imageUrl = await uploadImageToCloudinary(selectedImage!);
-    }
-
-    if (imageUrl == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("⚠️ Image upload failed")));
+    if (selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ Выбери картинку (image обязателен)")),
+      );
       return;
     }
+
+    final releaseYear = int.tryParse(yearController.text.trim());
+    if (releaseYear == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ Год должен быть числом")),
+      );
+      return;
+    }
+
+    if (selectedGenre == null || selectedType == null) return;
 
     final url = Uri.parse("http://localhost:8080/api/admin/add_movie");
 
-    final body = json.encode({
-      "title": nameController.text.trim(),
-      "description": descriptionController.text.trim(),
-      "releaseYear": int.tryParse(yearController.text.trim()) ?? 0,
-      "type": selectedType,
-      "categoryId": selectedGenre!['id'],
-      "thumbnailUrl": imageUrl,
-      "videoUrl": "string",
-      "trailerUrl": "string",
-    });
+    final req = http.MultipartRequest("POST", url);
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(
-        'jwt_token',
-      ); // 🔒 вставь сюда реальный токен админа
-      print("🔥 JWT TOKEN = $token");
+    // 🔒 JWT
+    req.headers["Authorization"] = "Bearer $token";
 
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token", // 👈 добавили токен
-        },
-        body: body,
+    // ✅ обычные поля (ВСЕ как String)
+    req.fields["title"] = nameController.text.trim();
+    req.fields["description"] = descriptionController.text.trim();
+    req.fields["release_year"] = releaseYear.toString();
+    req.fields["type"] = selectedType!; // "MOVIE" / "SERIES"
+    req.fields["category_id"] = selectedGenre!['id'].toString();
+    req.fields["platform"] = platformController.text.trim();
+    req.fields["director"] = directorController.text.trim();
+    req.fields["rating"] = selectedRating.toString();
+
+    // ✅ файл под ключом "image"
+    req.files.add(await http.MultipartFile.fromPath(
+      "image",
+      selectedImage!.path,
+    ));
+
+    final streamed = await req.send();
+    final responseBody = await streamed.stream.bytesToString();
+
+    if (streamed.statusCode == 200 || streamed.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Movie added successfully!")),
       );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Movie added successfully!")),
-        );
-        Navigator.pop(context);
-      } else {
-        print("❌ Error: ${response.statusCode} - ${response.body}");
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("❌ Error: ${response.body}")));
-      }
-    } catch (e) {
-      print("❌ Exception: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("❌ Failed to add movie: $e")));
+      Navigator.pop(context);
+    } else {
+      print("❌ Error: ${streamed.statusCode} - $responseBody");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Error: $responseBody")),
+      );
     }
   }
 
