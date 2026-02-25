@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _allMoviesCache = [];
   List<Map<String, dynamic>> _searchResults = [];
 
-  static const String _baseUrl = 'http://localhost:8080';
+  static const String _baseUrl = 'http://172.20.10.4:8080';
 
   final List<String> carouselImages = const [
     'assets/icons_user/the_woman_in_cabin_10.png',

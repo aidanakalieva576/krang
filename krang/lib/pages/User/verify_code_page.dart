@@ -32,7 +32,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
       // }
 
       final res = await http.post(
-        Uri.parse('http://localhost:8080/api/phone/verify-code'),
+        Uri.parse('http://172.20.10.4:8080/api/phone/verify-code'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phone': phone, 'code': code}),
       );

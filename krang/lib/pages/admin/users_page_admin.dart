@@ -45,7 +45,7 @@ class _UsersPageAdminState extends State<UsersPageAdmin> {
       }
 
       final response = await http.get(
-        Uri.parse("http://localhost:8080/api/admin/users"),
+        Uri.parse("http://172.20.10.4:8080/api/admin/users"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

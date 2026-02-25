@@ -23,7 +23,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   bool _favLoading = false;
   bool _favoritesChanged = false;
 
-  static const String _baseUrl = 'http://localhost:8080';
+  static const String _baseUrl = 'http://172.20.10.4:8080';
 
   @override
   void initState() {
@@ -136,7 +136,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
       final response = await http.get(
         Uri.parse(
-          'http://localhost:8080/api/public/movies/${widget.movieId}',
+          'http://172.20.10.4:8080/api/public/movies/${widget.movieId}',
         ),
       );
 

@@ -104,7 +104,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
 
     if (selectedGenre == null || selectedType == null) return;
 
-    final url = Uri.parse("http://localhost:8080/api/admin/add_movie");
+    final url = Uri.parse("http://172.20.10.4:8080/api/admin/add_movie");
 
     final req = http.MultipartRequest("POST", url);
 
