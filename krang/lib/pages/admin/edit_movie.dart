@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
 
 File? pickedThumbnail;
 File? pickedVideo;
@@ -43,14 +43,23 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     loadMovieData();
   }
 
+  @override
+  void dispose() {
+    tagController.dispose();
+    descriptionController.dispose();
+    yearController.dispose();
+    platformController.dispose();
+    directorController.dispose();
+    super.dispose();
+  }
+
   Future<void> saveMovieMultipart() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) throw Exception('No token');
 
-    final uri = Uri.parse(
-      'http://172.20.10.4:8080/api/admin/movies/${widget.movieId}',
-    );
+    final uri =
+    Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}');
 
     final request = http.MultipartRequest('PUT', uri);
 
@@ -63,7 +72,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     request.fields['releaseYear'] = yearController.text.trim();
     request.fields['platform'] = platformController.text.trim();
     request.fields['director'] = directorController.text.trim();
-    request.fields['type'] = 'MOVIE'; // или SERIES (как у тебя)
+    request.fields['type'] = 'MOVIE'; // или SERIES
     request.fields['categoryId'] = '1'; // подставь реальный id категории
 
     // optional thumbnail
@@ -87,9 +96,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     print('body: ${response.body}');
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('✅ Changes saved!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Changes saved!')),
+      );
     } else {
       throw Exception('Save failed: ${response.statusCode} ${response.body}');
     }
@@ -105,7 +114,8 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
+        Uri.parse(
+            'http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -127,10 +137,12 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           director = data['director'] ?? '';
           movieImage = data['thumbnailUrl'];
           tags = [if (data['category'] != null) data['category']];
+
           descriptionController.text = description;
           yearController.text = year;
           platformController.text = platform;
           directorController.text = director;
+
           isLoading = false;
         });
       } else {
@@ -237,10 +249,8 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFF2D2F41),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -279,10 +289,20 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       size: 28,
                     ),
                   ),
+
                   const Spacer(),
+
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/add_content'),
+                    child: Image.asset(
+                      'assets/icons_admin/add_movie.png',
+                      width: 42,
+                      height: 42,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
+
 
               // Картинка с камерой
               Stack(
@@ -294,9 +314,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       borderRadius: BorderRadius.circular(24),
                       image: movieImage != null
                           ? DecorationImage(
-                              image: NetworkImage(movieImage!),
-                              fit: BoxFit.cover,
-                            )
+                        image: NetworkImage(movieImage!),
+                        fit: BoxFit.cover,
+                      )
                           : null,
                       color: Colors.grey.shade800,
                     ),
@@ -489,12 +509,11 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       try {
                         await saveMovieMultipart();
                       } catch (e) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text('❌ $e')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('❌ $e')),
+                        );
                       }
                     },
-
                     child: Image.asset(
                       'assets/icons_admin/done.png',
                       width: 40,
