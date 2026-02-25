@@ -42,8 +42,6 @@ class ContentItem {
   }
 }
 
-
-
 class HomePageAdmin extends StatefulWidget {
   const HomePageAdmin({Key? key}) : super(key: key);
 
@@ -73,45 +71,62 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   }
 
   Future<void> _fetchMovies() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
       final token = await _getToken();
-      if (token == null) {
-        debugPrint('⚠️ Токен не найден. Пользователь не авторизован.');
+      if (token == null || token.trim().isEmpty) {
+        debugPrint('⚠️ Токен не найден (jwt_token). Пользователь не авторизован.');
         return;
       }
 
+      final url = Uri.parse('${ApiConfig.baseUrl}/api/admin/movies');
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/admin/movies'),
+        url,
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
       );
 
+      // ✅ ВАЖНО: печатаем всегда — чтобы понять, что именно вернуло API
+      debugPrint('GET movies url: $url');
       debugPrint('GET movies status: ${response.statusCode}');
+      debugPrint('GET movies body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List data = json.decode(response.body);
+        final decoded = json.decode(response.body);
+
+        // ✅ Поддержка двух форматов:
+        // 1) List: [ {...}, {...} ]
+        // 2) Pagination object: { "content": [ {...} ], ... }
+        final List data = decoded is List
+            ? decoded
+            : (decoded is Map<String, dynamic> ? (decoded['content'] as List? ?? []) : []);
 
         setState(() {
           _contentItems = data.map<ContentItem>((movie) {
+            final m = (movie is Map<String, dynamic>) ? movie : <String, dynamic>{};
+
             return ContentItem(
-              id: movie['id'].toString(),
-              title: (movie['title'] ?? '').toString(),
-              thumbnailUrl: (movie['thumbnail_url'] ?? '').toString(),
-              category: (movie['category_id'] ?? '').toString(),
-              isHidden: movie['is_hidden'] == true,
+              id: (m['id'] ?? '').toString(),
+              title: (m['title'] ?? '').toString(),
+              thumbnailUrl: (m['thumbnail_url'] ?? m['thumbnailUrl'] ?? '').toString(),
+              // ⚠️ category_id — это обычно число/ID. Для фильтра по названиям это не совпадёт,
+              // но при "All" покажет всё, если данные реально пришли.
+              category: (m['category'] ?? m['category_name'] ?? m['category_id'] ?? '').toString(),
+              isHidden: m['is_hidden'] == true,
             );
           }).toList();
         });
       } else {
         debugPrint('❌ Ошибка загрузки фильмов: ${response.statusCode}');
-        debugPrint(response.body);
       }
     } catch (e) {
-      debugPrint('❌ Ошибка подключения: $e');
+      debugPrint('❌ Ошибка подключения/парсинга: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -143,15 +158,12 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   const SizedBox(height: 16),
-
                   Search(
                     onChanged: (query) {
                       setState(() => _searchQuery = query);
                     },
                   ),
-
                   const SizedBox(height: 24),
-
                   SizedBox(
                     height: 40,
                     child: ListView.separated(
@@ -185,11 +197,9 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                       },
                     ),
                   ),
-
                   const SizedBox(height: 24),
                   _buildAddNewContentCard(),
                   const SizedBox(height: 16),
-
                   if (_isLoading)
                     const Center(
                       child: CircularProgressIndicator(color: Colors.white),
@@ -211,14 +221,13 @@ class _HomePageAdminState extends State<HomePageAdmin> {
                         onView: () => _viewContent(item),
                         onEdit: () => _editContent(item),
                         onDelete: () => _deleteContent(item),
-                        onHide: () => _toggleHidden(item), // ✅ ВОТ ЭТОГО НЕ ХВАТАЛО
+                        onHide: () => _toggleHidden(item),
                       );
                     }).toList(),
                 ],
               ),
             ),
           ),
-
           Positioned(
             bottom: 0,
             left: 0,
@@ -317,7 +326,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   Future<void> _toggleHidden(ContentItem item) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    if (token == null) {
+    if (token == null || token.trim().isEmpty) {
       debugPrint('⚠️ Токен не найден. Нельзя скрыть.');
       return;
     }
@@ -331,6 +340,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
         _contentItems[idx] = _contentItems[idx].copyWith(isHidden: newHidden);
       }
     });
+
     final path = newHidden ? 'hide' : 'unhide';
 
     try {
@@ -349,12 +359,10 @@ class _HomePageAdminState extends State<HomePageAdmin> {
         return;
       }
 
-      // 4) Если сервер возвращает JSON как в Postman: {"is_hidden": true, "id": 6}
-      // Подстрахуемся и синхронизируем UI по серверу
+      // 4) Если сервер возвращает JSON: {"is_hidden": true, "id": 6}
       if (res.body.isNotEmpty) {
         final body = json.decode(res.body);
-
-        if (body.containsKey('is_hidden')) {
+        if (body is Map && body.containsKey('is_hidden')) {
           final serverHidden = body['is_hidden'] == true;
           setState(() {
             final idx = _contentItems.indexWhere((x) => x.id == item.id);
@@ -365,13 +373,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
           });
         }
       }
-
     } catch (e) {
       debugPrint('❌ Ошибка скрытия: $e');
       await _fetchMovies();
     }
   }
-
 
   void _deleteContent(ContentItem item) async {
     final confirm = await showDialog<bool>(
@@ -399,7 +405,7 @@ class _HomePageAdminState extends State<HomePageAdmin> {
     if (confirm != true) return;
 
     final token = await _getToken();
-    if (token == null) return;
+    if (token == null || token.trim().isEmpty) return;
 
     setState(() {
       _contentItems.removeWhere((i) => i.id == item.id);
