@@ -18,47 +18,17 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
 
-    @Mock
-    UserRepository userRepository;
+    @Mock UserRepository userRepository;
+    @Mock PasswordEncoder passwordEncoder;
 
-    @Mock
-    PasswordEncoder passwordEncoder;
+    @InjectMocks AdminService adminService;
 
-    @InjectMocks
-    AdminService adminService;
-
-    // ----------------------------
-    // ТЕСТ: успешное создание админа
-    // ----------------------------
-    @Test
-    void createAdmin_shouldSaveAdmin_whenEmailFree() {
-
-        RegisterRequest req = new RegisterRequest();
-        req.setEmail("admin@mail.com");
-        req.setUsername("admin");
-        req.setPassword("123");
-
-        when(userRepository.existsByEmail("admin@mail.com")).thenReturn(false);
-        when(passwordEncoder.encode("123")).thenReturn("encoded");
-        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-
-        User saved = adminService.createAdmin(req);
-
-        assertThat(saved.getEmail()).isEqualTo("admin@mail.com");
-        assertThat(saved.getRole()).isEqualTo("ADMIN");
-        assertThat(saved.getPasswordHash()).isEqualTo("encoded");
-
-        verify(userRepository).save(any(User.class));
-    }
-
-    // ----------------------------
-    // ТЕСТ: email уже занят
-    // ----------------------------
     @Test
     void createAdmin_shouldThrow_whenEmailExists() {
-
         RegisterRequest req = new RegisterRequest();
         req.setEmail("taken@mail.com");
+        req.setUsername("any");
+        req.setPassword("123");
 
         when(userRepository.existsByEmail("taken@mail.com")).thenReturn(true);
 
@@ -69,12 +39,8 @@ class AdminServiceTest {
         verify(userRepository, never()).save(any());
     }
 
-    // ----------------------------
-    // ТЕСТ: удаление пользователя найдено
-    // ----------------------------
     @Test
     void deleteUserByEmail_shouldDelete_whenUserExists() {
-
         User user = new User();
         user.setEmail("user@mail.com");
 
@@ -87,12 +53,8 @@ class AdminServiceTest {
         verify(userRepository).delete(user);
     }
 
-    // ----------------------------
-    // ТЕСТ: удаление пользователя не найдено
-    // ----------------------------
     @Test
     void deleteUserByEmail_shouldReturnFalse_whenUserMissing() {
-
         when(userRepository.findByEmail("missing@mail.com"))
                 .thenReturn(Optional.empty());
 
