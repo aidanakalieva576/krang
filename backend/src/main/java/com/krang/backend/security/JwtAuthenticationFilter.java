@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // ✅ Пропускаем без токена публичные маршруты
         if (path.startsWith("/api/auth/")
-                //|| path.startsWith("/api/admin/register")
+                || path.startsWith("/api/admin/register")
                 || path.startsWith("/api/recovery/")
                 || path.startsWith("/api/phone/")
                 || path.startsWith("/swagger-ui/")

@@ -1,42 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { http } from "../api/http";
-
-const LS_KEY = "admin_hidden_movie_ids_v1";
-
-function readHiddenIds() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(arr) ? arr : []);
-  } catch {
-    return new Set();
-  }
-}
-
-function writeHiddenIds(set) {
-  localStorage.setItem(LS_KEY, JSON.stringify(Array.from(set)));
-}
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  const [hiddenIds, setHiddenIds] = useState(() => readHiddenIds());
-
-  const visibleMovies = useMemo(
-    () => movies.filter((m) => !hiddenIds.has(m.id)),
-    [movies, hiddenIds]
-  );
-
   const load = async () => {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await http.get("/api/admin/movies", {
-        params: { _ts: Date.now() }, // против кеша
-        headers: { "Cache-Control": "no-cache" },
-      });
+      const { data } = await http.get("/api/admin/movies");
       setMovies(Array.isArray(data) ? data : (data?.content ?? []));
     } catch (e) {
       setErr(e?.response?.data?.message || e?.message || "Ошибка загрузки");
@@ -45,27 +19,12 @@ export default function MoviesPage() {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const onDelete = async (id) => {
     if (!confirm(`Удалить фильм #${id}?`)) return;
-
-    // ✅ удаляем ТОЛЬКО на фронте (прячем из таблицы и запоминаем)
-    setHiddenIds((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      writeHiddenIds(next);
-      return next;
-    });
-
-    // (опционально) пробуем удалить на сервере, но молча игнорируем ошибки
-    try {
-      await http.delete(`/api/admin/movies/${id}`);
-    } catch {
-      // ничего не показываем, UI остаётся “удалённым” на фронте
-    }
+    await http.delete(`/api/admin/movies/${id}`);
+    await load();
   };
 
   return (
@@ -100,7 +59,7 @@ export default function MoviesPage() {
               </tr>
             </thead>
             <tbody>
-              {visibleMovies.map((m) => (
+              {movies.map((m) => (
                 <tr key={m.id} className="border-t">
                   <td className="p-3">{m.id}</td>
                   <td className="p-3">{m.title}</td>
@@ -117,7 +76,7 @@ export default function MoviesPage() {
                   </td>
                 </tr>
               ))}
-              {visibleMovies.length === 0 && (
+              {movies.length === 0 && (
                 <tr><td className="p-3" colSpan={6}>Пусто</td></tr>
               )}
             </tbody>

@@ -32,58 +32,58 @@ public class SecurityConfig {
     }
 
     // ✅ Отдельный бин для CORS — безопасный и без конфликтов
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfig = new CorsConfiguration();
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration corsConfig = new CorsConfiguration();
 
-        // ✅ Разрешаем только локальные адреса (и можно добавить прод позже)
-        corsConfig.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://172.20.10.4:*"
-        ));
-
-
-        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        corsConfig.setAllowedHeaders(List.of("*"));
-        corsConfig.setAllowCredentials(true); // разрешаем токены и куки
-        corsConfig.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-        return source;
-    }
+    // ✅ Разрешаем только локальные адреса (и можно добавить прод позже)
+    corsConfig.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "http://172.20.10.4:*"
+    ));
 
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.info("✅ SecurityConfig initialized — admin/register should be public");
+    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    corsConfig.setAllowedHeaders(List.of("*"));
+    corsConfig.setAllowCredentials(true); // разрешаем токены и куки
+    corsConfig.setMaxAge(3600L);
 
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers(
-                                        "/api/auth/**",
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", corsConfig);
+    return source;
+}
+
+
+   @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    log.info("✅ SecurityConfig initialized — admin/register should be public");
+
+    http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(
+                            "/api/auth/**",
 //                            "/api/admin/register",
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**",
-                                        "/api/public/movies/**",
-                                        "/api/users/**",
-                                        "/api/recovery/**",
-                                        "/api/phone/**"
-                                ).permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                        .anyRequest().authenticated()
-                )
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/api/public/movies/**",
+                            "/api/users/**",
+                            "/api/recovery/**",
+                            "/api/phone/**"
+                    ).permitAll()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+            )
 
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions().disable());
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .headers(headers -> headers.frameOptions().disable());
 
-        return http.build();
-    }
+    return http.build();
+}
 
 
     @Bean

@@ -22,7 +22,6 @@ export default function Sidebar() {
     <aside className="w-64 min-h-[calc(100vh-64px)] bg-[#1A1A1A] border-r border-black/40">
       <nav className="pt-6 space-y-1">
         <Item to="/admin/add-admin" icon="＋" label="Add admin" />
-        <Item to="/admin/users-control" icon="👤" label="Users" />
         <Item to="/admin/movies" icon="▦" label="Movies" />
       </nav>
     </aside>

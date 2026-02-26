@@ -10,7 +10,6 @@ import LoginPage from "../pages/LoginPage";
 import AdminLayout from "../pages/AdminLayout";
 import MoviesPage from "../pages/MoviesPage";
 import AddAdminPage from "../pages/AddAdminPage";
-import UsersControlPage from "../pages/UsersControlPage";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -30,7 +29,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route index element={<Navigate to="movies" replace />} />
         <Route path="movies" element={<MoviesPage />} />
         <Route path="add-admin" element={<AddAdminPage />} />
-        <Route path="users-control" element={<UsersControlPage />} />
       </Route>
 
       {/* default */}
