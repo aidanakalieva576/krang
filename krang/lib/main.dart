@@ -55,7 +55,6 @@ class MyApp extends StatelessWidget {
         '/phone_recovery': (context) => const PhoneRecoveryPage(),
         '/verify_code': (context) => const VerifyCodePage(),
         '/reset_password': (context) => const ResetPasswordPage(),
-        '/add_content': (context) => const AddScheduleModalPage(),
       },
 
       onGenerateRoute: (settings) {

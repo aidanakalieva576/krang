@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:krang/pages/admin/add_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 File? pickedThumbnail;
-File? pickedVideo;
 
 class EditMovieScreen extends StatefulWidget {
   final int movieId; // ← принимаем ID фильма
@@ -58,8 +58,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     final token = prefs.getString('jwt_token');
     if (token == null) throw Exception('No token');
 
-    final uri =
-    Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}');
+    final uri = Uri.parse(
+      'http://172.20.10.4:8080/api/admin/movies/${widget.movieId}',
+    );
 
     final request = http.MultipartRequest('PUT', uri);
 
@@ -82,13 +83,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
       );
     }
 
-    // optional video (только MOVIE)
-    if (pickedVideo != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('video', pickedVideo!.path),
-      );
-    }
-
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);
 
@@ -96,9 +90,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     print('body: ${response.body}');
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Changes saved!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('✅ Changes saved!')));
     } else {
       throw Exception('Save failed: ${response.statusCode} ${response.body}');
     }
@@ -114,8 +108,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
       }
 
       final response = await http.get(
-        Uri.parse(
-            'http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
+        Uri.parse('http://172.20.10.4:8080/api/admin/movies/${widget.movieId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -249,8 +242,10 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFF2D2F41),
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -293,7 +288,24 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                   const Spacer(),
 
                   GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/add_content'),
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddScheduleModalPage(
+                            movieId: widget.movieId,
+                            isSeries: false, // поставь true если это сериал
+                            seasonNumber:
+                                1, // если сериал — передай выбранный сезон
+                          ),
+                        ),
+                      );
+
+                      // Если add_content вернул "success" — обновим данные
+                      if (result == true) {
+                        await loadMovieData(); // подтянет новые данные/эпизоды/видеоUrl
+                      }
+                    },
                     child: Image.asset(
                       'assets/icons_admin/add_movie.png',
                       width: 42,
@@ -302,7 +314,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                   ),
                 ],
               ),
-
 
               // Картинка с камерой
               Stack(
@@ -314,9 +325,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       borderRadius: BorderRadius.circular(24),
                       image: movieImage != null
                           ? DecorationImage(
-                        image: NetworkImage(movieImage!),
-                        fit: BoxFit.cover,
-                      )
+                              image: NetworkImage(movieImage!),
+                              fit: BoxFit.cover,
+                            )
                           : null,
                       color: Colors.grey.shade800,
                     ),
@@ -509,9 +520,9 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                       try {
                         await saveMovieMultipart();
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('❌ $e')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('❌ $e')));
                       }
                     },
                     child: Image.asset(

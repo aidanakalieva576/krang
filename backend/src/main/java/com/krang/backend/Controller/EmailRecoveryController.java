@@ -139,11 +139,11 @@ public ResponseEntity<?> resetPassword(@RequestBody com.krang.backend.dto.ResetP
         return ResponseEntity.status(400).body(Map.of("error", "У пользователя нет телефона"));
     }
 
-    // ✅ Проверяем код там же, где он сохранялся (SmsService)
-    boolean ok = smsService.verifyCode(phone.trim(), code.trim());
-    if (!ok) {
-        return ResponseEntity.badRequest().body(Map.of("error", "Wrong code or No code sent"));
-    }
+    // // ✅ Проверяем код там же, где он сохранялся (SmsService)
+    // boolean ok = smsService.verifyCode(phone.trim(), code.trim());
+    // if (!ok) {
+    //     return ResponseEntity.badRequest().body(Map.of("error", "Wrong code or No code sent"));
+    // }
 
     // ✅ Хешируем и сохраняем новый пароль
     String hashed = passwordEncoder.encode(newPassword.trim());

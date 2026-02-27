@@ -51,9 +51,9 @@ export default function MoviesPage() {
             <thead className="bg-gray-50">
               <tr className="text-left">
                 <th className="p-3">ID</th>
-                <th className="p-3">Название</th>
-                <th className="p-3">Тип</th>
-                <th className="p-3">Год</th>
+                <th className="p-3">Name</th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
                 <th className="p-3">Hidden</th>
                 <th className="p-3"></th>
               </tr>

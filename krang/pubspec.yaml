@@ -17,6 +17,7 @@ dependencies:
   google_fonts: ^6.2.1
   chewie: ^1.8.5
   toastification: ^3.0.3
+  file_picker: ^8.0.0
 
 
 dev_dependencies:

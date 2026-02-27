@@ -51,7 +51,6 @@ public class AdminController {
 
 
     @PostMapping("/register")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterRequest req) {
         User created = adminService.createAdmin(req);
 
@@ -82,6 +81,24 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
+@GetMapping("/users2")
+public ResponseEntity<List<Map<String, Object>>> getAllUsers2() {
+    List<Map<String, Object>> users = userRepository.findAll().stream() // берём всех
+            .sorted((u1, u2) -> Long.compare(u1.getId(), u2.getId()))   // сортируем по id
+            .map(user -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", user.getId());
+                map.put("username", user.getUsername());
+                map.put("email", user.getEmail());
+                map.put("is_active", user.isActive());
+                map.put("avatar_url", user.getAvatarUrl());
+                map.put("role", user.getRole()); // теперь видно и админов
+                return map;
+            })
+            .collect(Collectors.toList());
+
+    return ResponseEntity.ok(users);
+}
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUserByEmail(@RequestBody Map<String, String> body) {

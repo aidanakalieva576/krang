@@ -1,8 +1,10 @@
 package com.krang.backend.Controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -150,7 +152,7 @@ public ResponseEntity<List<Map<String, Object>>> getComingSoonMovies(
 }
 
 
-    @GetMapping("/{id}")
+@GetMapping("/{id}")
 public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id) {
     String sql = """
         SELECT 
@@ -164,7 +166,8 @@ public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id
             m.thumbnail_url,
             m.video_url,
             m.trailer_url,
-            c.name AS category
+            c.name AS category,
+            m.created_by
         FROM movies m
         LEFT JOIN categories c ON c.id = m.category_id
         WHERE m.id = ?
@@ -172,14 +175,30 @@ public ResponseEntity<Map<String, Object>> getMovieDetails(@PathVariable Long id
 
     try {
         Map<String, Object> movie = jdbcTemplate.queryForMap(sql, id);
-        return ResponseEntity.ok(Map.of("message", "Movie updated"));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", movie.get("id"));
+        result.put("title", movie.getOrDefault("title", ""));
+        result.put("description", movie.getOrDefault("description", ""));
+        result.put("releaseYear", movie.get("release_year")); // null для чисел нормально
+        result.put("director", movie.getOrDefault("director", ""));
+        result.put("platform", movie.getOrDefault("platform", ""));
+        result.put("durationSeconds", movie.get("duration_seconds"));
+        result.put("thumbnailUrl", movie.getOrDefault("thumbnail_url", ""));
+        result.put("videoUrl", movie.getOrDefault("video_url", ""));
+        result.put("trailerUrl", movie.getOrDefault("trailer_url", ""));
+        result.put("category", movie.getOrDefault("category", ""));
+        result.put("createdBy", movie.getOrDefault("created_by", ""));
+
+        return ResponseEntity.ok(result);
+
+    } catch (EmptyResultDataAccessException e) {
+        return ResponseEntity.status(404).body(Map.of("error", "Movie not found"));
     } catch (Exception e) {
         System.err.println("❌ Error fetching movie details: " + e.getMessage());
-        return ResponseEntity.status(404).body(Map.of("error", "Movie not found"));
+        return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
     }
 }
-
-
 
 // 🎬 Просмотр фильма или сериала
 @GetMapping("/{id}/watch")

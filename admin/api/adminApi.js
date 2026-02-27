@@ -33,3 +33,13 @@ export async function getUsers() {
   const { data } = await http.get("/api/admin/users");
   return data;
 }
+
+export async function getUsers() {
+  const { data } = await http.get("/api/admin/users2");
+  return data;
+}
+
+export async function deleteUser(id) {
+  const { data } = await http.delete(`/api/admin/delete`, { params: { id } });
+  return data;
+}

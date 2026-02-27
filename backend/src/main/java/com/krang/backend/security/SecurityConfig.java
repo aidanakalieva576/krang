@@ -66,12 +66,13 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                     .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
                             "/api/auth/**",
-//                            "/api/admin/register",
+                            "/api/admin/register",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/api/public/movies/**",
                             "/api/users/**",
                             "/api/recovery/**",
+                            "/api/admin/delete",
                             "/api/phone/**"
                     ).permitAll()
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")

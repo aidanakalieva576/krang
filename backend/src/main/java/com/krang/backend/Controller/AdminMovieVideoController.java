@@ -44,6 +44,7 @@ public class AdminMovieVideoController {
             @RequestParam(value = "seasonNumber", required = false, defaultValue = "1") Integer seasonNumber
     ) {
         try {
+            System.out.println(">>> uploadVideos called, files=" + videos.length + ", movieId=" + movieId);
             if (videos == null || videos.length == 0) {
                 return ResponseEntity.badRequest().body(Map.of("error", "No files provided (videos)"));
             }
@@ -162,18 +163,20 @@ public class AdminMovieVideoController {
         }
     }
 
-    private String uploadToCloudinaryVideo(MultipartFile file, Long movieId) throws Exception {
-        Map<?, ?> result = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap(
-                        "resource_type", "video",
-                        "folder", "movies/" + movieId
-                )
-        );
-        Object secureUrl = result.get("secure_url");
-        if (secureUrl == null) throw new RuntimeException("Cloudinary secure_url is null");
-        return secureUrl.toString();
-    }
+private String uploadToCloudinaryVideo(MultipartFile file, Long movieId) throws Exception {
+    Map<?, ?> result = cloudinary.uploader().uploadLarge(
+            file.getInputStream(),
+            ObjectUtils.asMap(
+                    "resource_type", "video",
+                    "folder", "movies/" + movieId,
+                    "chunk_size", 6000000 // 6MB чанки (можно 5-10MB)
+            )
+    );
+
+    Object secureUrl = result.get("secure_url");
+    if (secureUrl == null) throw new RuntimeException("Cloudinary secure_url is null");
+    return secureUrl.toString();
+}
 
     private String safeTitleFromFilename(String originalName, String fallback) {
         if (originalName == null || originalName.isBlank()) return fallback;

@@ -1,47 +1,81 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-import { User, Plus, LayoutGrid } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { User, Plus, LayoutGrid, LogOut } from "lucide-react";
 
 const Item = ({ to, icon, label }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `flex items-center gap-3 px-6 py-3 text-sm text-white/80
-       transition-colors select-none
-       ${isActive ? "bg-[#555A72] text-white" : "hover:bg-white/5"}`
+      `flex items-center gap-3 px-6 py-3 text-sm transition-colors
+       ${isActive
+         ? "bg-[#555A72] text-white"
+         : "text-white/80 hover:bg-white/5"}`
     }
   >
-    <span className="w-6 flex items-center justify-center">
-      {icon}
-    </span>
-    <span className="whitespace-nowrap font-medium">{label}</span>
+    {icon}
+    <span>{label}</span>
   </NavLink>
 );
 
 export default function Sidebar() {
+
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
-    <aside className="w-64 min-h-[calc(100vh-64px)] bg-[#1A1A1A] border-r border-black/40">
-      <nav className="pt-6 space-y-1">
+    <aside className="
+      fixed
+      top-16
+      left-0
+      bottom-0
+      w-64
+      bg-[#1A1A1A]
+      border-r border-black/40
+      flex flex-col
+      z-40
+    ">
+
+      <nav className="pt-6 flex-1">
 
         <Item
           to="/admin/add-admin"
-          icon={<Plus size={18} className="text-white" />}
+          icon={<Plus size={18} />}
           label="Add admin"
         />
 
         <Item
           to="/admin/user-control"
-          icon={<User size={18} className="text-white" />}
+          icon={<User size={18} />}
           label="Users"
         />
 
         <Item
           to="/admin/movies"
-          icon={<LayoutGrid size={18} className="text-white" />}
+          icon={<LayoutGrid size={18} />}
           label="Movies"
         />
 
       </nav>
+
+
+      <button
+        onClick={logout}
+        className="
+          flex items-center gap-3
+          px-6 py-4
+          text-red-400
+          hover:bg-red-500/10
+          border-t border-white/10
+        "
+      >
+        <LogOut size={18} />
+        Logout
+      </button>
+
     </aside>
   );
 }

@@ -132,13 +132,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   Future<void> fetchMovieDetails() async {
     try {
-      print('🧩 Загружаем фильм с ID: ${widget.movieId}');
-
       final response = await http.get(
-        Uri.parse(
-          'http://172.20.10.4:8080/api/public/movies/${widget.movieId}',
-        ),
+        Uri.parse('$_baseUrl/api/public/movies/${widget.movieId}'),
       );
+
+      print("STATUS: ${response.statusCode}");
+      print("BODY: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -152,11 +151,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         });
       }
     } catch (e) {
-      print('❌ Error fetching movie details: $e');
-      setState(() {
-        hasError = true;
-        isLoading = false;
-      });
+      print(e);
     }
   }
 
@@ -260,11 +255,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     final movie = movieData!;
     final title = movie['title'] ?? 'Unknown';
     final description = movie['description'] ?? 'No description available.';
-    final year = movie['release_year']?.toString() ?? '—';
+    final year = movie['releaseYear']?.toString() ?? '—';
     final director = movie['director'] ?? '—';
     final platform = movie['platform'] ?? '—';
     final category = movie['category'] ?? '';
-    final thumbnail = movie['thumbnail_url'] ?? '';
+    final thumbnail = movie['thumbnailUrl'] ?? '';
+    final videoUrl = movie['videoUrl'] ?? '';
 
     return WillPopScope(
       onWillPop: () async {
@@ -407,8 +403,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               final movieId = widget.movieId;
                               final title = (movie['title'] ?? 'Unknown')
                                   .toString();
-                              final videoUrl = (movie['video_url'] ?? '')
-                                  .toString();
+                              final videoUrl = (movie['videoUrl'] ?? '')
+                                  .toString(); // camelCase!
 
                               if (videoUrl.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(

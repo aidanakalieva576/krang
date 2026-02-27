@@ -84,7 +84,10 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: const [
                       BackButton(color: Colors.white),
@@ -104,74 +107,79 @@ class _ContinueWatchingScreenState extends State<ContinueWatchingScreen> {
                 Expanded(
                   child: _loading
                       ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
                       : _error
                       ? Center(
-                    child: TextButton(
-                      onPressed: _fetchContinueWatching,
-                      child: const Text(
-                        'Ошибка загрузки. Нажми чтобы повторить',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  )
+                          child: TextButton(
+                            onPressed: _fetchContinueWatching,
+                            child: const Text(
+                              'Ошибка загрузки. Нажми чтобы повторить',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        )
                       : _items.isEmpty
                       ? const Center(
-                    child: Text(
-                      'Ты пока ничего не смотришь 🙂',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  )
-                      : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: _items.length,
-                    itemBuilder: (context, index) {
-                      final item = _items[index];
-
-                      final movieId = (item['movie_id'] as num).toInt();
-                      final title = (item['title'] ?? '') as String;
-                      final imageUrl = (item['thumbnail_url'] ?? '') as String;
-                      final videoUrl = (item['video_url'] ?? '') as String;
-
-                      final currentSec = (item['current_time_sec'] as num?)?.toInt() ?? 0;
-                      final durationSec = (item['duration_seconds'] as num?)?.toInt() ?? 0;
-
-                      final progress = durationSec > 0
-                          ? (currentSec / durationSec).clamp(0.0, 1.0)
-                          : 0.0;
-
-
-                      debugPrint(
-                        '🎯 CW item movieId=$movieId current=$currentSec duration=$durationSec progress=$progress',
-                      );
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/watch',
-                              arguments: {
-                                'movieId': movieId,
-                                'title': title,
-                                'videoUrl': videoUrl,
-                              },
-                            ).then((_) => _fetchContinueWatching());
-                          },
-                          child: ContinueWatchingItem(
-                            title: title,
-                            imagePath: imageUrl,
-                            progress: progress,
+                          child: Text(
+                            'No movies in continue watching',
+                            style: TextStyle(color: Colors.white70),
                           ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          itemCount: _items.length,
+                          itemBuilder: (context, index) {
+                            final item = _items[index];
+
+                            final movieId = (item['movie_id'] as num).toInt();
+                            final title = (item['title'] ?? '') as String;
+                            final imageUrl =
+                                (item['thumbnail_url'] ?? '') as String;
+                            final videoUrl =
+                                (item['video_url'] ?? '') as String;
+
+                            final currentSec =
+                                (item['current_time_sec'] as num?)?.toInt() ??
+                                0;
+                            final durationSec =
+                                (item['duration_seconds'] as num?)?.toInt() ??
+                                0;
+
+                            final progress = durationSec > 0
+                                ? (currentSec / durationSec).clamp(0.0, 1.0)
+                                : 0.0;
+
+                            debugPrint(
+                              '🎯 CW item movieId=$movieId current=$currentSec duration=$durationSec progress=$progress',
+                            );
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/watch',
+                                    arguments: {
+                                      'movieId': movieId,
+                                      'title': title,
+                                      'videoUrl': videoUrl,
+                                    },
+                                  ).then((_) => _fetchContinueWatching());
+                                },
+                                child: ContinueWatchingItem(
+                                  title: title,
+                                  imagePath: imageUrl,
+                                  progress: progress,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-
-                      );
-                    },
-
-
-                  ),
                 ),
               ],
             ),

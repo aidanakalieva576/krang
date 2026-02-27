@@ -31,7 +31,7 @@ export default function UsersControlPage() {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await http.get("/api/admin/users", {
+      const { data } = await http.get("/api/admin/users2", {
         params: { _ts: Date.now() },
         headers: { "Cache-Control": "no-cache" },
       });
@@ -52,28 +52,25 @@ export default function UsersControlPage() {
     load();
   }, []);
 
-  const visibleUsers = useMemo(() => {
-    // показываем только те, у кого есть хоть какой-то id
-    return users.filter((u) => pickId(u) != null);
-  }, [users]);
+  const visibleUsers = useMemo(() => users, [users]);
 
-  const onDelete = async (u) => {
-    const id = pickId(u);
-    if (id == null) return;
+const onDelete = async (u) => {
+  const email = pickEmail(u);
+  if (!email || email === "-") return;
 
-    const label = pickEmail(u) !== "-" ? pickEmail(u) : pickUsername(u);
-    if (!confirm(`Удалить пользователя ${label}?`)) return;
+  if (!confirm(`Удалить пользователя ${email}?`)) return;
 
-    // ✅ сразу убираем из таблицы
-    setUsers((prev) => prev.filter((x) => pickId(x) !== id));
+  setUsers(prev => prev.filter(x => pickEmail(x) !== email));
 
-    // ✅ пробуем удалить на сервере (если 403 — просто игнор)
-    try {
-      await http.delete("/api/users/delete", { params: { id } });
-    } catch {
-      // молча
-    }
-  };
+  try {
+    await http.delete("/api/admin/delete", {
+      data: { email }   // ✅ body
+    });
+  } catch (e) {
+    setUsers(prev => [...prev, u]);
+    alert("Ошибка удаления");
+  }
+};
 
   return (
     <div className="bg-white border rounded-2xl p-6 shadow-sm">
@@ -108,36 +105,30 @@ export default function UsersControlPage() {
             </thead>
 
             <tbody>
-              {visibleUsers.map((u) => {
-                const id = pickId(u);
-                return (
-                  <tr key={String(id)} className="border-t">
-                    <td className="p-3">{String(id)}</td>
-                    <td className="p-3">{pickUsername(u)}</td>
-                    <td className="p-3">{pickEmail(u)}</td>
-                    <td className="p-3">
-                      {Array.isArray(pickRole(u)) ? pickRole(u).join(", ") : String(pickRole(u))}
-                    </td>
-                    <td className="p-3">{pickActive(u)}</td>
-                    <td className="p-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => onDelete(u)}
-                        className="px-3 py-1.5 rounded-lg bg-red-600 text-white"
-                      >
-                        Удалить
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {visibleUsers.length === 0 && (
-                <tr>
-                  <td className="p-3" colSpan={6}>Пусто</td>
-                </tr>
-              )}
-            </tbody>
+  {visibleUsers.map((u, index) => {
+    const key = pickId(u) ?? pickEmail(u) ?? index;
+    return (
+      <tr key={String(key)} className="border-t">
+        <td className="p-3">{pickId(u) ?? "-"}</td>
+        <td className="p-3">{pickUsername(u)}</td>
+        <td className="p-3">{pickEmail(u)}</td>
+        <td className="p-3">
+          {Array.isArray(pickRole(u)) ? pickRole(u).join(", ") : String(pickRole(u))}
+        </td>
+        <td className="p-3">{pickActive(u)}</td>
+        <td className="p-3 text-right">
+          <button
+            type="button"
+            onClick={() => onDelete(u)}
+            className="px-3 py-1.5 rounded-lg bg-red-600 text-white"
+          >
+            Удалить
+          </button>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
           </table>
         </div>
       )}
